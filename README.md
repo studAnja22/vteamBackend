@@ -40,11 +40,11 @@ The form needs the following params:
 `email`: The users email.
 `image`: The image user want to change to.
 
-Example of complete form:
-{
-  "email": "teat@test.se",
-  "image": "cool.png"
-}
+Example of complete form:  
+{  
+  "email": "teat@test",  
+  "image": "cool.png"  
+}  
 
 ### /admin routes
 Example on localhost: `http://localhost:1337/admin/collections/users/data`
@@ -61,13 +61,13 @@ The form needs the following params:
 `latitude` (float): The latitude of the parking lot.  
 `chargingStation` (string): ("true" or "false") Indicates if the parking lot has a charging station.  
 
-Example of complete form:
-{
-  "city": "Göteborg",
-  "address": "Cool Street 1",
-  "longitude": 1.23,
-  "latitude": 4.56,
-  "chargingStation": "true"
+Example of complete form:  
+{  
+  "city": "Göteborg",  
+  "address": "Cool Street 1",  
+  "longitude": 1.23,  
+  "latitude": 4.56,  
+  "chargingStation": "true"  
 }
 
 ## Known issues

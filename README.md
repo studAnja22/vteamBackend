@@ -54,12 +54,12 @@ Example on localhost: `http://localhost:1337/admin/collections/users/data`
 
 - `POST /registerCity`: Register a city. (example: city: Gävle)
 - `PUT /createParkingLot`: Add a new parking lot to a city. 
-The form needs the following params: 
-- `city` (string): The name of the City.
-- `address` (string): The address of the parking lot.
-- `longitude` (float): The longitude of the parking lot.
-- `latitude` (float): The latitude of the parking lot.
-- `chargingStation` (string): ("true" or "false") Indicates if the parking lot has a charging station. 
+The form needs the following params:  
+`city` (string): The name of the City.  
+`address` (string): The address of the parking lot.  
+`longitude` (float): The longitude of the parking lot.  
+`latitude` (float): The latitude of the parking lot.  
+`chargingStation` (string): ("true" or "false") Indicates if the parking lot has a charging station.  
 
 Example of complete form:
 {

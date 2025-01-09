@@ -21,10 +21,8 @@ const admin = {
     countCollectionEntries: async function countCollectionEntries(collectionName) {
         const db = await dbHelper.connectToDatabase();
         const collection = await dbHelper.selectCollection(db, collectionName);
+
         try {
-            const result = await collection.countDocuments();
-            console.log("Result count", result);
-            
             return await collection.countDocuments();
         } catch (e) {
             console.error(`Error while trying to count entries in collection: ${collectionName}:`, e);
@@ -46,8 +44,7 @@ const admin = {
         }
 
         const uniqEmail = await validationHelper.isEmailAvailable(body.email, collection);
-        console.log("Uniq email??", uniqEmail);
-        
+
         if (uniqEmail.error) {
             return uniqEmail;//Email is a duplicate
         }

@@ -5,7 +5,7 @@ import userHelper from '../utils/api/user/userHelper.mjs';
 import validationHelper from '../utils/api/validationHelper.mjs';
 
 const user = {
-    register: async function register(body, res) {
+    register: async function register(body) {
         const collection = "users";
         const completeForm = validationHelper.isFormComplete(body);
 
@@ -88,6 +88,20 @@ const user = {
 
         const filter = { email: userEmail };
         return await userHelper.increase(filter, amountToAdd);
+    },
+    updateImage: async function updateImage(userEmail, userImage) {
+        if (!userEmail) {
+            return { status: 400, error: "Missing users email - can't update users profile picture." };
+        }
+
+        if (!userImage) {
+            return { status: 400, error: "Somehow there's no user image in the form..." };
+        }
+
+        const filter = { email: userEmail };
+        const updatePassword = { img: userImage };
+
+        return await userHelper.update(filter, updatePassword);
     }
 };
 

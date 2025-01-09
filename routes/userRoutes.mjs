@@ -3,10 +3,10 @@ const router = express.Router();
 
 import user from '../models/user.mjs';
 import errorHelper from '../utils/general/errorHelper.mjs';
-
+//Register a user account
 router.post('/register', async (req, res) => {
     try {
-        const result = await user.register(req.body, res);
+        const result = await user.register(req.body);
 
         if (result.error) {
             return res.status(result.status).json({
@@ -27,7 +27,7 @@ router.post('/register', async (req, res) => {
         errorHelper.handleError(e, res);
     }
 });
-
+//Get details of a single account
 router.get('/details', async (req, res) => {
     try {
         const userEmail = req.body.email;
@@ -54,7 +54,7 @@ router.get('/details', async (req, res) => {
         errorHelper.handleError(e, res);
     }
 });
-
+//Update user info: name
 router.put('/update/name', async (req, res) => {
     try {
         const userEmail = req.body.email;
@@ -77,8 +77,7 @@ router.put('/update/name', async (req, res) => {
         return { status: 500, error: "Error (500) while trying to update user name" };
     }
 });
-
-//Update password - Done 24/12
+//Update user password
 router.put('/update/password', async (req, res) => {
     try {
         const userEmail = req.body.email;
@@ -101,8 +100,7 @@ router.put('/update/password', async (req, res) => {
         return { status: 500, error: "Error (500) while trying to update user name" };
     }
 });
-
-//Add money to prepaid card & the transaction log -Done 24/12
+//Add money to prepaid card & the transaction log
 router.put('/update/prepaid', async (req, res) => {
     try {
         const userEmail = req.body.email;
@@ -126,5 +124,27 @@ router.put('/update/prepaid', async (req, res) => {
     }
 });
 
-// 
+//Update users img
+router.put('/update/image', async (req, res) => {
+    try {
+        const userEmail = req.body.email;
+        const userImage = req.body.image;
+        const updateResult = await user.updateImage(userEmail, userImage);
+
+        if (updateResult.error) {
+            return res.status(updateResult.status).json({
+                "status": updateResult.status,
+                "error": updateResult.error
+            });
+        }
+
+        return res.status(200).json({
+            "status": updateResult.status,
+            "message": "Successfully changed image."
+        });
+    } catch (e) {
+        console.error("Internal server error while trying to update document");
+        return { status: 500, error: "Error (500) while trying to update user profile picture" };
+    }
+})
 export default router;

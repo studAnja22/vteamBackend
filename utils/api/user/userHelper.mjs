@@ -8,12 +8,14 @@ const userHelper = {
         try {
             let newUser = {
                 name: "",
+                img: "default",
                 email: body.email,
                 password: hashedPassword,
                 account_created: timestamp,
                 last_login: null,
                 role: "user",
                 status: "active",
+                renting_bike: false,
                 prepaid_balance: 0,
                 monthly_debt: 0,
                 transaction_log: [],

@@ -34,11 +34,10 @@ Example on localhost: `localhost:1337/user/details`
 - `PUT /update/name`: Update the users name.
 - `PUT /update/password`: Update the users password.
 - `PUT /update/prepaid`: Update the users prepaid card (and log it in their transaction log).
-
 - `PUT /update/image`: User can update their profile picture.
-The form needs the following params:
-`email`: The users email.
-`image`: The image user want to change to.
+The form needs the following params:  
+`email`: The users email.  
+`image`: The image user want to change to.  
 
 Example of complete form:  
 {  
@@ -59,7 +58,7 @@ The form needs the following params:
 `address` (string): The address of the parking lot.  
 `longitude` (float): The longitude of the parking lot.  
 `latitude` (float): The latitude of the parking lot.  
-`chargingStation` (string): ("true" or "false") Indicates if the parking lot has a charging station.  
+`chargingStation` (string or bool): ("true" or "false") Indicates if the parking lot has a charging station.  
 
 Example of complete form:  
 {  
@@ -69,6 +68,19 @@ Example of complete form:
   "latitude": 4.56,  
   "chargingStation": "true"  
 }
+
+- `PUT /createSpeedZone`: Add a new speed zone to a city  
+The form need the following params:  
+`city` (string): The name of the City.  
+`address` (string): The address of the parking lot.  
+`longitude` (float): The longitude of the parking lot.  
+`latitude` (float): The latitude of the parking lot.  
+`speedLimit` (int): The speed limit of the zone  
+
+- `PUT /removeParkingLot`: Removes a parking lot.  
+The form needs the following params: `city` and `address`
+- `PUT /removeSpeedZone`: Removes a speed zone.  
+The form needs the following params: `city` and `address`
 
 ## Known issues
 The module errorHelper.handleError(); in directory utils/general/errorHelper.mjs is not well tested and might have unaddressed flaws in it's current state.

@@ -21,7 +21,9 @@ const cities = {
         return await cityHelper.saveCity(body.city, currentTimestamp);
     },
     addParking: async function addParking(body) {
-        //
+        /**The form needs the following params:
+         *  city, address, longitude, latitude, chargingStation
+         * */
         const completeForm = validationHelper.isParkingFormComplete(body);
 
         if (completeForm.error) {
@@ -34,13 +36,56 @@ const cities = {
             return cityExist;//City not found
         }
 
-        const parkingExist = await validationHelper.doesParkingLotExist(body.city, body.address);
+        const parkingAvailable = await validationHelper.isParkingLotAvailable(body.city, body.address);
         
-        if (parkingExist.error) {
-            return parkingExist;//Parking lot already in the city
+        if (parkingAvailable.error) {
+            return parkingAvailable;//Parking lot already in the city
         }
 
         return await cityHelper.addParking(body);
+    },
+    addSpeedZone: async function addSpeedZone(body) {
+        const completeForm = validationHelper.isSpeedZoneFormComplete(body);
+
+        if (completeForm.error) {
+            return completeForm;//Form incomplete
+        }
+
+        const cityExist = await validationHelper.doesCityExist(body.city)
+
+        if (cityExist.error) {
+            return cityExist;//City not found
+        }
+
+        const zoneAvailable = await validationHelper.isSpeedZoneAvailable(body.city, body.address);
+        
+        if (zoneAvailable.error) {
+            return zoneAvailable;//Speed Zone already registered in the city
+        }
+
+        return await cityHelper.addSpeedZone(body);
+    },
+    removeLocation: async function removeLocation(body, location) {
+        //To remove a parking lot you need the following params: city, address.
+        const completeForm = validationHelper.isRemoveFormComplete(body);
+
+        if (completeForm.error) {
+            return completeForm;//Form incomplete
+        }
+
+        const cityExist = await validationHelper.doesCityExist(body.city)
+
+        if (cityExist.error) {
+            return cityExist;//404 City not found
+        }
+
+        const locationExists = await validationHelper.doesLocationExists(body.city, body.address, location);
+
+        if (locationExists.error) {
+            return locationExists;//404 parking not found.
+        }
+
+        return await cityHelper.removeLocation(body, location);
     }
 }
 

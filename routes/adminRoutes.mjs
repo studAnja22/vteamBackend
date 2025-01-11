@@ -95,7 +95,9 @@ router.post('/registerCity', async (req, res) => {
         errorHelper.handleError(e, res);
     }
 });
-//Save a new parking lot
+
+/** Parking lots
+ * - Add a new parking lot */
 router.put('/createParkingLot', async (req, res) => {
     //Form need these params (strings or floats): city, address, longitude, latitude, chargingStation
     try {
@@ -122,6 +124,88 @@ router.put('/createParkingLot', async (req, res) => {
     }
 });
 
+//Remove a parking lot
+router.put('/removeParkingLot', async (req, res) => {
+    //Form need these params (strings): city, address
+    try {
+        const result = await cities.removeLocation(req.body, "parkingLot");
+
+        if (result.error) {
+            return res.status(result.status).json({
+                "status": result.status,
+                "error": result.error
+            });
+        }
+
+        if (result.message === "Success. Location has been removed.") {
+            return res.status(200).json({
+                        "status": 200,
+                        "message": `Success. City, ${req.body.city}, has now removed a parking lot at ${req.body.address}.`,
+                        "city": req.body.city,
+                        "address": req.body.address
+                    });
+                }
+    } catch (e) {
+        console.error(`Error during admin/removeParking`, e);
+        errorHelper.handleError(e, res);
+    }
+});
+
+/** Speed zones
+ * - Add a new speed zone */
+router.put('/createSpeedZone', async (req, res) => {
+    //Form need these params (strings or floats): city, address, longitude, latitude, speedLimit
+    try {
+        const result = await cities.addSpeedZone(req.body);
+
+        if (result.error) {
+            return res.status(result.status).json({
+                "status": result.status,
+                "error": result.error
+            });
+        }
+
+        if (result.message === "Success. City has now a new speed zone.") {
+            return res.status(200).json({
+                        "status": 200,
+                        "message": `Success. City, ${req.body.city}, has now a new speed zone at ${req.body.address}.`,
+                        "city": req.body.city,
+                        "address": req.body.address,
+                        "speed_limit": req.body.speedLimit
+                    });
+                }
+    } catch (e) {
+        console.error(`Error during admin/createSpeedZone`, e);
+        errorHelper.handleError(e, res);
+    }
+});
+
+//Remove a speed zone
+router.put('/removeSpeedZone', async (req, res) => {
+    //Form need these params (strings): city, address
+    try {
+        const result = await cities.removeLocation(req.body, "speedZone");
+
+        if (result.error) {
+            return res.status(result.status).json({
+                "status": result.status,
+                "error": result.error
+            });
+        }
+
+        if (result.message === "Success. Location has been removed.") {
+            return res.status(200).json({
+                        "status": 200,
+                        "message": `Success. City, ${req.body.city}, has now removed the speed zone at ${req.body.address}.`,
+                        "city": req.body.city,
+                        "address": req.body.address
+                    });
+                }
+    } catch (e) {
+        console.error(`Error during admin/removeParking`, e);
+        errorHelper.handleError(e, res);
+    }
+});
 
 
 export default router;

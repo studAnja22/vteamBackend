@@ -68,6 +68,105 @@ const cityHelper = {
         } finally {
             db.client.close();
         }
+    },
+    addSpeedZone: async function addSpeedZone(body) {
+        const db = await dbHelper.connectToDatabase();
+        try {
+            const currentTimestamp = timestamp.getCurrentTime();
+            const filter = { city: body.city };
+            let isChargingStation = false;
+
+            if (body.chargingStation === 'true' || body.chargingStation === true) {
+                isChargingStation = true;
+            }
+
+            const newParkingLot = {
+                $push: {
+                    speed_zones: {
+                        registered: currentTimestamp,
+                        address: body.address,
+                        longitude: body.longitude,
+                        latitude: body.latitude,
+                        speed_limit: body.speedLimit,
+                        meta_data: {
+                            comment: "TBD",
+                            zone_type: "TBD",
+                            active_hours: "TBD"
+                        }
+                        
+                    }
+                }
+            }
+
+            const result = await db.cities.updateOne(
+                filter,
+                newParkingLot,
+            );
+
+            if (result.matchedCount === 0) {
+                return { status: 404, error: "No City found matching the given filter." };
+            }
+
+            if (result.modifiedCount === 0) {
+                return { status: 500, error: "Failed to add a new speed zone to City" };
+            }
+
+            return { status: 200, message: "Success. City has now a new speed zone." };
+        } catch (e) {
+            console.error("Internal server error while trying to update document", e);
+            return { status: 500, error: "Error (500) while trying to add a new speed zone to the City." };
+        } finally {
+            db.client.close();
+        }
+    },
+    removeLocation: async function removeLocation(body, location) {
+        const db = await dbHelper.connectToDatabase();
+        try {
+            const filter = { city: body.city };
+            let removeLocation = "";
+
+            switch (location) {
+                case 'parkingLot':
+                    removeLocation = {
+                        $pull: {
+                            parking_locations: {
+                                address: body.address,
+                            }
+                        }
+                    }
+                    break;
+                case 'speedZone':
+                    removeLocation = {
+                        $pull: {
+                            speed_zones: {
+                                address: body.address,
+                            }
+                        }
+                    }
+                    break;
+                default:
+                    return { status: 400, error: "Error: Location is missing or there's a typo..." };
+            }
+            const result = await db.cities.updateOne(
+                filter,
+                removeLocation,
+            );
+
+            if (result.matchedCount === 0) {
+                return { status: 404, error: "No City found matching the given filter." };
+            }
+
+            if (result.modifiedCount === 0) {
+                return { status: 500, error: "Failed to remove a parking lot from City" };
+            }
+
+            return { status: 200, message: "Success. Location has been removed." };
+        } catch (e) {
+            console.error("Internal server error while trying to update document", e);
+            return { status: 500, error: "Error (500) while trying to remove a location from the City." };
+        } finally {
+            db.client.close();
+        }
     }
 }
 

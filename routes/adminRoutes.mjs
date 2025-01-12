@@ -3,6 +3,7 @@ const router = express.Router();
 
 import admin from '../models/admin.mjs';
 import cities from '../models/cities.mjs';
+import bikes from '../models/bikes.mjs';
 import errorHelper from '../utils/general/errorHelper.mjs';
 
 const validCollections = ['bikes', 'users', 'cities'];
@@ -207,5 +208,29 @@ router.put('/removeSpeedZone', async (req, res) => {
     }
 });
 
+/**Admin Bike routes */
+router.post('/createBike', async (req, res) => {
+    try {
+        const result = await bikes.createBike(req.body);
+
+        if (result.error) {
+            return res.status(result.status).json({
+                "status": result.status,
+                "error": result.error
+            });
+        }
+
+        if (result.message === "Bike was successfully created.") {
+            return res.status(200).json({
+                        "status": 200,
+                        "message": `Bike was successfully saved somewhere in ${req.body.city}`,
+                        "city": req.body.city
+                    });
+                }
+    } catch (e) {
+        console.error(`Error during admin/createBike`, e);
+        errorHelper.handleError(e, res);
+    }
+});
 
 export default router;

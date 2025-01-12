@@ -89,6 +89,12 @@ The form needs the following params: `city` and `address`
 - `PUT /removeSpeedZone`: Removes a speed zone.  
 The form needs the following params: `city` and `address`
 
+### /admin bike routes  
+- `POST /createBike`: Create a bike on a random location in a city.  
+The form need the following params:  
+`city`: The city name. Currently only these 3 are valid:  
+`Stockholm`, `Göteborg` and `Karlskrona`.
+
 ## Known issues
 The module errorHelper.handleError(); in directory utils/general/errorHelper.mjs is not well tested and might have unaddressed flaws in it's current state.
 

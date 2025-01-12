@@ -51,7 +51,13 @@ Example on localhost: `http://localhost:1337/admin/collections/users/data`
 - `GET /collections/:collectionName/data`: View all entries in chosen collection (users, bikes or cities)
 - `GET /collections/:collectionName/count`: View how many entries are in chosen collection (users, bikes or cities)
 
-- `POST /registerCity`: Register a city. (example: city: Gävle)
+#### /admin city routes  
+In the city collection we store data about a city, its parking lots and speed zones.  
+The following routes handles registering a city, adding and removing parking lots and speed zones.  
+
+- `POST /registerCity`: Register a city. (example: city: Gävle)  
+  
+##### Create a parking lot or speed zone
 - `PUT /createParkingLot`: Add a new parking lot to a city. 
 The form needs the following params:  
 `city` (string): The name of the City.  
@@ -76,7 +82,8 @@ The form need the following params:
 `longitude` (float): The longitude of the parking lot.  
 `latitude` (float): The latitude of the parking lot.  
 `speedLimit` (int): The speed limit of the zone  
-
+  
+##### Remove a parking lot or speed zone
 - `PUT /removeParkingLot`: Removes a parking lot.  
 The form needs the following params: `city` and `address`
 - `PUT /removeSpeedZone`: Removes a speed zone.  

@@ -3,7 +3,7 @@ const router = express.Router();
 
 import admin from '../models/admin.mjs';
 import cities from '../models/cities.mjs';
-import bikes from '../models/bikes.mjs';
+import bike from '../models/bike.mjs';
 import errorHelper from '../utils/general/errorHelper.mjs';
 
 const validCollections = ['bikes', 'users', 'cities'];
@@ -211,7 +211,7 @@ router.put('/removeSpeedZone', async (req, res) => {
 /**Admin Bike routes */
 router.post('/createBike', async (req, res) => {
     try {
-        const result = await bikes.createBike(req.body);
+        const result = await bike.createBike(req.body);
 
         if (result.error) {
             return res.status(result.status).json({

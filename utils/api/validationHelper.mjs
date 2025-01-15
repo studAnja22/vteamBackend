@@ -208,7 +208,7 @@ const validationHelper = {
             return { status: 400, error: "Error (400) Remove Form (Parking or Speed zone) is incomplete: missing city or address" };
         }
         return true;//Form is completed
-    }
+    },
 }
 
 export default validationHelper;

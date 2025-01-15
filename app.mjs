@@ -12,6 +12,7 @@ import cors from 'cors';
 /**---- import routes ----*/
 import admin from './routes/adminRoutes.mjs';
 import user from './routes/userRoutes.mjs';
+import bike from './routes/bikeRoutes.mjs';
 
 /**------- Express settings -------*/
 const app = express();
@@ -38,6 +39,7 @@ app.get("/", (req, res) => res.send({ message: "Hello world! :D" }));
 /**------- Routes -------*/
 app.use("/admin", admin);
 app.use("/user", user);
+app.use("/bike", bike);
 
 // app.mjs
 console.log("Hello, your app.mjs is running!");

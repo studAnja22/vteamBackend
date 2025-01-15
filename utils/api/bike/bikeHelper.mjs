@@ -35,6 +35,8 @@ const bikeHelper = {
                 battery: 100,
                 parked: true,
                 rented: false,
+                in_parking_zone: true,
+                in_free_parking: false,
                 disabled: false,
                 color_code: "green",
                 ride_log: []
@@ -53,7 +55,33 @@ const bikeHelper = {
         const locationList = cityLocations[city];
         const randomIndex = Math.floor(Math.random() * locationList.length);
         return locationList[randomIndex];
-    }
+    },
+    updateBattery: async function update(filter, update) {
+        //filter: bike id, update: battery increase or decrease
+        const db = await dbHelper.connectToDatabase();
+        try {
+            const setUpdate = { $inc: update };
+            const result = await db.bikes.updateOne(
+                filter,
+                setUpdate,
+            );
+
+            if (result.matchedCount === 0) {
+                return { status: 404, error: "No bike found matching the given filter." };
+            }
+
+            if (result.modifiedCount === 0) {
+                return { status: 200, message: "No changes made to the bike data." };
+            }
+
+            return { status: 200, message: "bike battery updated successfully." };
+        } catch (e) {
+            console.error("Internal server error while trying to update document");
+            return { status: 500, error: "Error (500) while trying to update user data" };
+        } finally {
+            db.client.close();
+        }
+    },
 }
 
 export default bikeHelper;

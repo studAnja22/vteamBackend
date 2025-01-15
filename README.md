@@ -96,14 +96,12 @@ The form need the following params:
 `Stockholm`, `Göteborg` and `Karlskrona`.
 
 ### /bike routes
-- `PUT /battery/increase/:amount/:bike_id`: charge battery. example /battery/increase/10/:bike123 will increase bike123 with battery with 10 point.
-- `PUT /battery/decrease/:amount/:bike_id`: drain battery.
+- `PUT /battery/increase/:amount/:bike_id`: charge battery. example /battery/increase/10/:bike123 will increase bike123 with battery with 10 point. Battery will never exceed 100 points.
+- `PUT /battery/decrease/:amount/:bike_id`: drain battery. Battery will never be lower than 0 points.
 
 
 ## Known issues
 The module errorHelper.handleError(); in directory utils/general/errorHelper.mjs is not well tested and might have unaddressed flaws in it's current state.
-
-Bike routes /increase and /decrease currently have no min-max-cap so you can drain battery below zero and increase it above 100. This will be fixed later.
 
 ## Development
 The backend is currently in development and more features will be added shortly.

@@ -2,16 +2,13 @@ import express from 'express';
 const router = express.Router();
 
 import bike from '../models/bike.mjs';
-import { ObjectId } from 'mongodb';
 
 //Increase battery
 router.put('/battery/increase/:amount/:bike_id', async (req, res) => {
     try {
         const { amount, bike_id } = req.params;
-        const bikeId = ObjectId.createFromHexString(bike_id);
-        const parsedValue = parseInt(amount, 10);
 
-        const updateResult = await bike.increaseBattery(bikeId, parsedValue);
+        const updateResult = await bike.increaseBattery(bike_id, amount);
 
         if (updateResult.error) {
             return res.status(updateResult.status).json({
@@ -25,7 +22,7 @@ router.put('/battery/increase/:amount/:bike_id', async (req, res) => {
             "message": "Battery updated successfully."
         });
     } catch (e) {
-        console.error("Internal server error while trying to update bike battery");
+        console.error("Internal server error while trying to update bike battery", e);
         return { status: 500, error: "Error (500) while trying to update bike battery" };
     }
 });
@@ -34,10 +31,7 @@ router.put('/battery/increase/:amount/:bike_id', async (req, res) => {
 router.put('/battery/decrease/:amount/:bike_id', async (req, res) => {
     try {
         const { amount, bike_id } = req.params;
-        const bikeId = ObjectId.createFromHexString(bike_id);
-        const parsedValue = parseInt(amount, 10);
-
-        const updateResult = await bike.decreaseBattery(bikeId, parsedValue);
+        const updateResult = await bike.decreaseBattery(bike_id, amount);
 
         if (updateResult.error) {
             return res.status(updateResult.status).json({
@@ -51,7 +45,7 @@ router.put('/battery/decrease/:amount/:bike_id', async (req, res) => {
             "message": "Battery updated successfully."
         });
     } catch (e) {
-        console.error("Internal server error while trying to update bike battery");
+        console.error("Internal server error while trying to update bike battery", e);
         return { status: 500, error: "Error (500) while trying to update bike battery" };
     }
 });

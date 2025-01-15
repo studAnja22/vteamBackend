@@ -1,4 +1,5 @@
 import dbHelper from "../../database/dbHelper.mjs";
+import { ObjectId } from 'mongodb';
 
 const cityLocations = {
     "Stockholm": [
@@ -51,16 +52,58 @@ const bikeHelper = {
             await db.client.close();
         }
     },
+    getBike: async function getBike(id) {
+        const db = await dbHelper.connectToDatabase();
+        const bikeId = { _id: ObjectId.createFromHexString(id)};
+
+        try {
+            const foundBike = await db.bikes.findOne(bikeId);
+            return foundBike;
+        } catch (e) {
+            console.error("Error during getOne operation:", e);
+            throw new Error("Failed to retrieve document with id: ", documentId);
+        } finally {
+            await db.client.close();
+        }
+    },
     randomStartLocation: function randomStartLocation(city) {
         const locationList = cityLocations[city];
         const randomIndex = Math.floor(Math.random() * locationList.length);
         return locationList[randomIndex];
     },
-    updateBattery: async function update(filter, update) {
+    adjustValue: async function adjustValue(filter, update) {
         //filter: bike id, update: battery increase or decrease
         const db = await dbHelper.connectToDatabase();
+
         try {
-            const setUpdate = { $inc: update };
+            const incUpdate = { $inc: update };
+            const result = await db.bikes.updateOne(
+                filter,
+                incUpdate,
+            );
+
+            if (result.matchedCount === 0) {
+                return { status: 404, error: "No bike found matching the given filter." };
+            }
+
+            if (result.modifiedCount === 0) {
+                return { status: 200, message: "No changes made to the bike data." };
+            }
+            console.log("Updated bike fine");
+            
+            return { status: 200, message: "bike battery updated successfully." };
+        } catch (e) {
+            console.error("Internal server error while trying to update document", e);
+            return { status: 500, error: "Error (500) while trying to update bike battery" };
+        } finally {
+            db.client.close();
+        }
+    },
+    setValue: async function setValue(filter, update) {
+        // Battery will be set to max: 100 or min: 0
+        const db = await dbHelper.connectToDatabase();
+        try {
+            const setUpdate = { $set: update };
             const result = await db.bikes.updateOne(
                 filter,
                 setUpdate,
@@ -73,7 +116,8 @@ const bikeHelper = {
             if (result.modifiedCount === 0) {
                 return { status: 200, message: "No changes made to the bike data." };
             }
-
+            console.log("Set bike yay");
+            
             return { status: 200, message: "bike battery updated successfully." };
         } catch (e) {
             console.error("Internal server error while trying to update document");
@@ -81,7 +125,7 @@ const bikeHelper = {
         } finally {
             db.client.close();
         }
-    },
+    }
 }
 
 export default bikeHelper;

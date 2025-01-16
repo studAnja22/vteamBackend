@@ -61,7 +61,7 @@ const bikeHelper = {
             return foundBike;
         } catch (e) {
             console.error("Error during getOne operation:", e);
-            throw new Error("Failed to retrieve document with id: ", documentId);
+            throw new Error("Failed to retrieve bike document with id: ", documentId);
         } finally {
             await db.client.close();
         }
@@ -72,7 +72,7 @@ const bikeHelper = {
         return locationList[randomIndex];
     },
     adjustValue: async function adjustValue(filter, update) {
-        //filter: bike id, update: value to increase or decrease
+        //filter, update: value to increase or decrease
         const db = await dbHelper.connectToDatabase();
 
         try {
@@ -120,11 +120,11 @@ const bikeHelper = {
             return { status: 200, message: "bike battery updated successfully." };
         } catch (e) {
             console.error("Internal server error while trying to update document");
-            return { status: 500, error: "Error (500) while trying to update user data" };
+            return { status: 500, error: "Error (500) while trying to update bike data" };
         } finally {
             db.client.close();
         }
-    }
+    },
 }
 
 export default bikeHelper;

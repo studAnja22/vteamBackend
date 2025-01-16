@@ -2,6 +2,29 @@ import express from 'express';
 const router = express.Router();
 
 import bike from '../models/bike.mjs';
+//Start the ride
+router.put('/start/:user_id/:bike_id', async (req, res) => {
+    try {
+        const { user_id, bike_id } = req.params;
+
+        const startBikeResult = await bike.startRide(user_id, bike_id);
+
+        if (startBikeResult.error) {
+            return res.status(startBikeResult.status).json({
+                "status": startBikeResult.status,
+                "error": startBikeResult.error
+            });
+        }
+
+        return res.status(200).json({
+            "status": startBikeResult.status,
+            "message": "Ride started successfully."
+        });
+    } catch (e) {
+        console.error("Internal server error while trying to start the ride", e);
+        return { status: 500, error: "Error (500) while trying to start the ride" };
+    }
+});
 
 //Increase battery
 router.put('/battery/increase/:amount/:bike_id', async (req, res) => {

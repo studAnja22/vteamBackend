@@ -96,6 +96,9 @@ The form need the following params:
 `Stockholm`, `Göteborg` and `Karlskrona`.
 
 ### /bike routes
+- `PUT /start/:user_id/:bike_id`: Start renting a bike.  
+This will add a ride log to both the user and the bike.
+
 - `PUT /battery/increase/:amount/:bike_id`: charge battery. example /battery/increase/10/:bike123 will increase bike123 with battery with 10 point. Battery will never exceed 100 points.
 - `PUT /battery/decrease/:amount/:bike_id`: drain battery. Battery will never be lower than 0 points.
 

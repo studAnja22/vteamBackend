@@ -1,5 +1,6 @@
 import dbHelper from "../../database/dbHelper.mjs";
 import timestamp from "../../general/timestamp.mjs";
+import { ObjectId } from "mongodb";
 
 const userHelper = {
     saveUser: async function saveUser(body, hashedPassword, timestamp) {
@@ -20,7 +21,7 @@ const userHelper = {
                 monthly_debt: 0,
                 transaction_log: [],
                 payment_history: [],
-                rental_history_log: []
+                ride_log: []
             }
 
             await db.users.insertOne(newUser);
@@ -28,6 +29,20 @@ const userHelper = {
         } catch (e) {
             console.error("Failed to save user", e);
             return { status: 500, error: "Error (500) while trying to save user." };
+        } finally {
+            await db.client.close();
+        }
+    },
+    getUser: async function getUser(id) {
+        const db = await dbHelper.connectToDatabase();
+        const userId = { _id: ObjectId.createFromHexString(id)};
+
+        try {
+            const foundUser = await db.users.findOne(userId);
+            return foundUser;
+        } catch (e) {
+            console.error("Error during getOne operation:", e);
+            throw new Error("Failed to retrieve user document with id: ", id);
         } finally {
             await db.client.close();
         }
@@ -61,7 +76,7 @@ const userHelper = {
         const db = await dbHelper.connectToDatabase();
         try {
             const currentTimestamp = timestamp.getCurrentTime();
-            const increasePrePaidAndLogTransaction ={
+            const increasePrePaidAndAddLogTransaction ={
                 $inc: { prepaid_balance: amountToAdd },
                 $push: {
                     transaction_log: {
@@ -75,7 +90,7 @@ const userHelper = {
 
             const result = await db.users.updateOne(
                 filter,
-                increasePrePaidAndLogTransaction,
+                increasePrePaidAndAddLogTransaction,
             );
 
             if (result.matchedCount === 0) {
@@ -93,7 +108,7 @@ const userHelper = {
         } finally {
             db.client.close();
         }
-    }
-}
+    },
+};
 
 export default userHelper;

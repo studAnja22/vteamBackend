@@ -1,4 +1,5 @@
 import dbHelper from "../database/dbHelper.mjs";
+import { ObjectId } from "mongodb";
 
 const validationHelper = {
     isFormComplete: function isFormComplete(body) {
@@ -209,6 +210,44 @@ const validationHelper = {
         }
         return true;//Form is completed
     },
+    bikeAvailable: async function bikeAvailable(id) {
+        const db = await dbHelper.connectToDatabase();
+        const hexBikeId = ObjectId.createFromHexString(id);
+
+        try {
+            const filter = { _id: hexBikeId, rented: false };
+            let available = await db.bikes.findOne(filter);
+
+            if (!available) {
+                return { status: 409, error: "Error: Bike already in use" };
+            }
+            return true;//Bike is available
+        } catch (e) {
+            console.error("An error occurred while trying to find Bike in database", e);
+            return { status: 500, error: "Error: Unexpected error occurred while looking for a bike in the database" };
+        } finally {
+            await db.client.close();
+        }
+    },
+    oneRentLimitCheck: async function oneRentLimitCheck(id) {
+        const db = await dbHelper.connectToDatabase();
+        const hexUserId = ObjectId.createFromHexString(id);
+
+        try {
+            const filter = { _id: hexUserId, renting_bike: true };
+            let limitReached = await db.bikes.findOne(filter);
+
+            if (limitReached) {
+                return { status: 409, error: "Error: User can only rent one bike" };
+            }
+            return true;//User is not renting a bike at the moment, free to proceed
+        } catch (e) {
+            console.error("An error occurred while trying to find user in database", e);
+            return { status: 500, error: "Error: Unexpected error occurred while looking for a user in the database" };
+        } finally {
+            await db.client.close();
+        }
+    }
 }
 
 export default validationHelper;

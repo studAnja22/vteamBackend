@@ -72,7 +72,7 @@ const bikeHelper = {
         return locationList[randomIndex];
     },
     adjustValue: async function adjustValue(filter, update) {
-        //filter: bike id, update: battery increase or decrease
+        //filter: bike id, update: value to increase or decrease
         const db = await dbHelper.connectToDatabase();
 
         try {
@@ -100,7 +100,6 @@ const bikeHelper = {
         }
     },
     setValue: async function setValue(filter, update) {
-        // Battery will be set to max: 100 or min: 0
         const db = await dbHelper.connectToDatabase();
         try {
             const setUpdate = { $set: update };

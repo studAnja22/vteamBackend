@@ -46,12 +46,18 @@ const bike = {
         if (isNaN(parsedValue) || parsedValue <= 0) {
             return { status: 400, error: "value must be a positive number" };
         }
+
         const bike = await bikeHelper.getBike(bikeId);
+
+        if (!bike) {
+            return { status: 400, error: `Could not find bike with that id: ${bikeId}`};
+        }
+
         const batteryChargingSum = bike.battery + parsedValue;
 
         let filter;
         let increase;
-        //increase will max battery - set it to max value
+        //increase will max battery - set it to max value of 100
         if (batteryChargingSum > 100) {
             filter = { _id: id };
             increase = { battery: 100 };
@@ -70,6 +76,7 @@ const bike = {
         if (!ObjectId.isValid(bikeId)) {
             return { status: 400, error: "Invalid id format. id must be 24 characters" };
         }
+
         const id = ObjectId.createFromHexString(bikeId);
         const parsedValue = parseInt(value, 10);
 
@@ -78,18 +85,23 @@ const bike = {
             return { status: 400, error: "value must be a positive number" };
         }
         const bike = await bikeHelper.getBike(bikeId);
+
+        if (!bike) {
+            return { status: 400, error: `Could not find bike with that id: ${bikeId}`};
+        }
+
         const batteryChargingSum = bike.battery - parsedValue;
 
         let filter;
         let decrease;
-        //increase will max battery - set it to max value
+        //decrease will drain battery below zero - set it to min value of 0
         if (batteryChargingSum < 0) {
             filter = { _id: id };
             decrease = { battery: 0 };
             return await bikeHelper.setValue(filter, decrease);
         }
 
-        //increase will not max battery - allow the increase
+        //increase will not drain battery below zero - allow the decrease
         filter = { _id: id };
         decrease = { battery: -parsedValue };
         return await bikeHelper.adjustValue(filter, decrease);

@@ -96,4 +96,31 @@ router.put('/battery/decrease/:amount/:bike_id', async (req, res) => {
     }
 });
 
+//Update bike position
+router.put('/:bike_id/position/:longitude/:latitude', async (req, res) => {
+    try {
+        const { bike_id, longitude, latitude } = req.params;
+        const position = {
+            latitude: latitude,
+            longitude: longitude
+        }
+        const updateResult = await bike.updatePosition(bike_id, position);
+
+        if (updateResult.error) {
+            return res.status(updateResult.status).json({
+                "status": updateResult.status,
+                "error": updateResult.error
+            });
+        }
+
+        return res.status(200).json({
+            "status": updateResult.status,
+            "message": "Bikes location updated successfully."
+        });
+    } catch (e) {
+        console.error("Internal server error while trying to update bike location", e);
+        return { status: 500, error: "Error (500) while trying to update bike location" };
+    }
+});
+
 export default router;

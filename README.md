@@ -104,6 +104,7 @@ Currently the price is fixed, but that will be updated shortly.
 - `PUT /battery/increase/:amount/:bike_id`: charge battery. example /battery/increase/10/:bike123 will increase bike123 with battery with 10 point. Battery will never exceed 100 points.
 - `PUT /battery/decrease/:amount/:bike_id`: drain battery. Battery will never be lower than 0 points.
 
+- `PUT /:bike_id/position/:longitude/:latitude`: Updates the bikes position (longitude, latitude).
 
 ## Known issues
 The module errorHelper.handleError(); in directory utils/general/errorHelper.mjs is not well tested and might have unaddressed flaws in it's current state.

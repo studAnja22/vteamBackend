@@ -157,8 +157,36 @@ const bike = {
         decrease = { battery: -parsedValue };
         return await bikeHelper.adjustValue(filter, decrease);
     },
-    updatePosition: async function updatePosition(body) {
-        //update long lat
+    updatePosition: async function updatePosition(bikeId, position) {
+        if (!ObjectId.isValid(bikeId)) {
+            return { status: 400, error: "Invalid id format. id must be 24 characters" };
+        }
+        if (!position.longitude || !position.latitude) {
+            return { status: 400, error: `Can't update bikes position without longitude and latitude`};
+        }
+
+        const parsedLongitude = parseFloat(position.longitude);
+        const parsedLatitude = parseFloat(position.latitude);
+
+        //Check if parsed values are a numbers
+        if (isNaN(parsedLongitude) || isNaN(parsedLatitude)) {
+            return { status: 400, error: "Longitude/Latitude must be a number" };
+        }
+
+        const bike = await bikeHelper.getBike(bikeId);
+
+        if (!bike) {
+            return { status: 400, error: `Could not find bike with that id: ${bikeId}`};
+        }
+        const hexBikeId = ObjectId.createFromHexString(bikeId);
+        const filter = {_id: hexBikeId };
+        const currentPosition = {
+            current_location: {
+                longitude: parsedLongitude,
+                latitude: parsedLatitude
+            }
+        }
+        return await bikeHelper.setValue(filter, currentPosition);
     }
 };
 

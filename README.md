@@ -30,7 +30,7 @@ Example: `http://localhost:8081/admin/collections/bikes/data`
 ### /user routes
 Example on localhost: `localhost:1337/user/details`
 - `POST /register`: Register a new user.
-- `GET /details`: Get all data on one user.
+- `GET /details/:user_id`: Get all data on one user by id.
 - `PUT /update/name`: Update the users name.
 - `PUT /update/password`: Update the users password.
 - `PUT /update/prepaid`: Update the users prepaid card (and log it in their transaction log).
@@ -98,6 +98,8 @@ The form need the following params:
 ### /bike routes
 - `PUT /start/:user_id/:bike_id`: Start renting a bike.  
 This will add a ride log to both the user and the bike.
+- `PUT /stop/:user_id/:bike_id`: Return a bike and update the ride_log  
+Currently the price is fixed, but that will be updated shortly.
 
 - `PUT /battery/increase/:amount/:bike_id`: charge battery. example /battery/increase/10/:bike123 will increase bike123 with battery with 10 point. Battery will never exceed 100 points.
 - `PUT /battery/decrease/:amount/:bike_id`: drain battery. Battery will never be lower than 0 points.

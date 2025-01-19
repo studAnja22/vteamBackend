@@ -28,10 +28,10 @@ router.post('/register', async (req, res) => {
     }
 });
 //Get details of a single account
-router.get('/details', async (req, res) => {
+router.get('/details/:user_id', async (req, res) => {
     try {
-        const userEmail = req.body.email;
-        const result = await user.getDetails(userEmail);
+        const {user_id} = req.params;
+        const result = await user.getDetails(user_id);
 
         if (result.error) {
             return res.status(result.status).json({
@@ -43,9 +43,10 @@ router.get('/details', async (req, res) => {
         if (result.length === 0) {
             return res.status(404).json({
                 "status": 404,
-                "error": `No data found on this user: ${email}`
+                "error": `No data found on this user with id: ${user_id}`
             });
         }
+
         return res.status(200).json({
             result
         });

@@ -25,6 +25,29 @@ router.put('/start/:user_id/:bike_id', async (req, res) => {
         return { status: 500, error: "Error (500) while trying to start the ride" };
     }
 });
+//Stop the ride
+router.put('/stop/:user_id/:bike_id', async (req, res) => {
+    try {
+        const { user_id, bike_id } = req.params;
+
+        const stopBikeResult = await bike.stopRide(user_id, bike_id);
+
+        if (stopBikeResult.error) {
+            return res.status(stopBikeResult.status).json({
+                "status": stopBikeResult.status,
+                "error": stopBikeResult.error
+            });
+        }
+
+        return res.status(200).json({
+            "status": stopBikeResult.status,
+            "message": "Ride stopped successfully."
+        });
+    } catch (e) {
+        console.error("Internal server error while trying to stop the ride", e);
+        return { status: 500, error: "Error (500) while trying to stop the ride" };
+    }
+});
 
 //Increase battery
 router.put('/battery/increase/:amount/:bike_id', async (req, res) => {

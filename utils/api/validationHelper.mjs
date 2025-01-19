@@ -210,18 +210,28 @@ const validationHelper = {
         }
         return true;//Form is completed
     },
-    bikeAvailable: async function bikeAvailable(id) {
+    bikeIsRentedByUser: async function bikeIsRentedByUser(bikeId, userId) {
         const db = await dbHelper.connectToDatabase();
-        const hexBikeId = ObjectId.createFromHexString(id);
+        const hexBikeId = ObjectId.createFromHexString(bikeId);
+        const hexUserId = ObjectId.createFromHexString(userId);
 
         try {
-            const filter = { _id: hexBikeId, rented: false };
-            let available = await db.bikes.findOne(filter);
+            const filter = { 
+                _id: hexBikeId,
+                rented: true,
+                ride_log: {
+                    $elemMatch: {
+                        user_id: hexUserId,
+                        complete_log: false
+                    }
+                }
+            };
+            let rented = await db.bikes.findOne(filter);
 
-            if (!available) {
-                return { status: 409, error: "Error: Bike already in use" };
+            if (!rented) {
+                return { status: 409, error: "Error: Bike not rented by user" };
             }
-            return true;//Bike is available
+            return true;//Bike is currently being rented by user
         } catch (e) {
             console.error("An error occurred while trying to find Bike in database", e);
             return { status: 500, error: "Error: Unexpected error occurred while looking for a bike in the database" };
@@ -229,25 +239,6 @@ const validationHelper = {
             await db.client.close();
         }
     },
-    oneRentLimitCheck: async function oneRentLimitCheck(id) {
-        const db = await dbHelper.connectToDatabase();
-        const hexUserId = ObjectId.createFromHexString(id);
-
-        try {
-            const filter = { _id: hexUserId, renting_bike: true };
-            let limitReached = await db.bikes.findOne(filter);
-
-            if (limitReached) {
-                return { status: 409, error: "Error: User can only rent one bike" };
-            }
-            return true;//User is not renting a bike at the moment, free to proceed
-        } catch (e) {
-            console.error("An error occurred while trying to find user in database", e);
-            return { status: 500, error: "Error: Unexpected error occurred while looking for a user in the database" };
-        } finally {
-            await db.client.close();
-        }
-    }
 }
 
 export default validationHelper;

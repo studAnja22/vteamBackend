@@ -39,10 +39,14 @@ const userHelper = {
 
         try {
             const foundUser = await db.users.findOne(userId);
+
+            if (foundUser.matchedCount === 0) {
+                return { status: 404, error: "No user found matching the given filter." };
+            }
             return foundUser;
         } catch (e) {
-            console.error("Error during getOne operation:", e);
-            throw new Error("Failed to retrieve user document with id: ", id);
+            console.error("Error during getUser operation:", e);
+            return { status: 500, error: "Failed to retrieve user document with id"};
         } finally {
             await db.client.close();
         }

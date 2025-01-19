@@ -25,29 +25,31 @@ const bike = {
             return { status: 400, error: `Invalid id format. id must be 24 characters. user id: ${userId}, bike id: ${bikeId}` };
         }
 
+        /**Checking if the user exists and if the user isn't already renting a bike */
+        const user = await userHelper.getUser(userId);
+
+        if (!user) {
+            return { status: 400, error: `Could not find user with that id: ${userId}`};
+        }
+
+        if (user.renting_bike) {
+            return { status: 409, error: "Error: User can only rent one bike." };
+        }
+
+        /**Checking if the bike exists and if it's available to be rented */
         const bike = await bikeHelper.getBike(bikeId);
 
         if (!bike) {
             return { status: 400, error: `Could not find bike with that id: ${bikeId}`};
         }
 
-        const bikeAvailable = await validationHelper.bikeAvailable(bikeId);
+        const available = !bike.rented;//An available bike have rented: false.
 
-        if (bikeAvailable.error) {
+        if (!available) {
+            //Bike is not available as it currently have rented: true.
             return { status: 409, error: "Error: Bike already in use." };
         }
 
-        const user = await userHelper.getUser(userId);
-
-        if (!user) {
-            return { status: 400, error: `Could not find bike with that id: ${bikeId}`};
-        }
-
-        const userCanOnlyRentOneBike = await validationHelper.oneRentLimitCheck(userId);
-
-        if (userCanOnlyRentOneBike.error) {
-            return { status: 409, error: "Error: User can only rent one bike." };
-        }
         //All checks were good. Lets start renting the bike.
         return await rentAndReturn.start(userId, bikeId, bike);
     },
@@ -56,47 +58,35 @@ const bike = {
             return { status: 400, error: `Invalid id format. id must be 24 characters. user id: ${userId}, bike id: ${bikeId}` };
         }
 
-        const bike = await bikeHelper.getBike(bikeId);
-
-        if (!bike) {
-            return { status: 400, error: `Could not find bike with that id: ${bikeId}`};
-        }
-
+        /** Does user exist and are they renting a the bike? */
         const user = await userHelper.getUser(userId);
 
         if (!user) {
-            return { status: 400, error: `Could not find bike with that id: ${bikeId}`};
+            //User does not exists
+            return { status: 400, error: `Could not find user with that id: ${userId}`};
+        }
+        //User is renting a bike
+        if (!user.renting_bike) {
+            return { status: 409, error: "Error: User currently not renting a bike." };
         }
 
-        const hexUserId = ObjectId.createFromHexString(userId);
-        const hexBikeId = ObjectId.createFromHexString(bikeId);
-        const currentTimestamp = timestamp.getCurrentTime();
+        /**Checking if the bike exists and if it's currently being rented so we can return it */
+        const bike = await bikeHelper.getBike(bikeId);
 
-        // Calculate ride fare
-        const filter = { _id: hexBikeId };
-        const setValues = {
-            status: "available",
-            parked: true,
-            rented: false,
-            color_code: "green"
-        };
+        if (!bike) {
+            //Bike does not exists
+            return { status: 400, error: `Could not find bike with that id: ${bikeId}`};
+        }
+        //User is renting this bike
+        const bikeRented = await validationHelper.bikeIsRentedByUser(bikeId, userId);
 
-        const rideLog = {
-            user_id: hexUserId,
-            time: {
-                stop: currentTimestamp
-            },
-            location: {
-            stop: {
-                longitude: bike.current_location.longitude,
-                latitude: bike.current_location.latitude,
-                parking_type: null,//FIX THIS
-            }
-            },
-            complete_log: true
-        };
+        if (bikeRented.error) {
+            return { status: 409, error: "Error: Bike not rented by user" };
+        }
 
-        return await bikeHelper.adjustRide(filter, setValues, rideLog);
+        //All checks were good. Lets stop renting the bike.
+        // return { status: 400, message: `testing things in stop`};
+        return await rentAndReturn.stop(userId, bikeId, bike);
     },
     increaseBattery: async function increaseBattery(bikeId, value) {
         if (!ObjectId.isValid(bikeId)) {

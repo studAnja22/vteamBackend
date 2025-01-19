@@ -1,8 +1,8 @@
 import bcryptHelper from '../utils/authentication/bcryptHelper.mjs';
-import dbHelper from '../utils/database/dbHelper.mjs';
 import timestamp from '../utils/general/timestamp.mjs';
 import userHelper from '../utils/api/user/userHelper.mjs';
 import validationHelper from '../utils/api/validationHelper.mjs';
+import { ObjectId } from 'mongodb';
 
 const user = {
     register: async function register(body) {
@@ -28,21 +28,16 @@ const user = {
 
         return await userHelper.saveUser(body, hashedPassword, currentTimestamp);
     },
-    getDetails: async function getDetails(userEmail) {
-        if (!userEmail) {
+    getDetails: async function getDetails(userId) {
+        if (!userId) {
             return { status: 400, error: "Unable to get users data without their email." };
         }
 
-        const filter = {
-            email: userEmail
+        if (!ObjectId.isValid(userId)) {
+            return { status: 400, error: `Invalid id format. id must be 24 characters. user id: ${userId}` };
         }
 
-        const db = await dbHelper.connectToDatabase();
-        if (db.error) {
-            return db;//Could not connect to database
-        }
-        const collection = db.users;
-        return await dbHelper.findDocument(db, filter, collection);
+        return await userHelper.getUser(userId);
     },
     updateName: async function updateName(userEmail, userName) {
         if (!userEmail) {

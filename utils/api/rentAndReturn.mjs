@@ -165,8 +165,7 @@ const rentAndReturn = {
     endRideBike: async function endRideBike(db, session, currentTimestamp, hexBikeId, hexUserId, bike) {
         try {
             const collection = db.bikes;
-            console.log("Hello in end ride bike");
-            
+
             /** The bike is returned and is now available to be rented again. */
             const filter = { _id: hexBikeId };
             const setValues = {

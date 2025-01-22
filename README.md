@@ -16,6 +16,9 @@ This is a backend API for handling a school project - a bike rental service.
 - DB_PASS: your MongoDB password - paired with the username for authentication
 - NODE_ENV: the environment mode for the app. Example "development", "production" or "test".
 - SALT_ROUNDS: (integer) used for hashing the password with bcrypt. Example: 10
+- CLIENT_ID: your client id
+- CLIENT_SECRET: your client secret
+- JWT_SECRET: your jwt secret
 4. Run the server with either `nodemon app.mjs` or `node app.mjs`
 
 This repo also contains a Dockerfile.

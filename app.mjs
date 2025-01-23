@@ -13,6 +13,7 @@ import cors from 'cors';
 import admin from './routes/adminRoutes.mjs';
 import user from './routes/userRoutes.mjs';
 import bike from './routes/bikeRoutes.mjs';
+import oauth from './routes/oAuthRoutes.mjs';;
 
 /**------- Express settings -------*/
 const app = express();
@@ -40,6 +41,7 @@ app.get("/", (req, res) => res.send({ message: "Hello world! :D" }));
 app.use("/admin", admin);
 app.use("/user", user);
 app.use("/bike", bike);
+app.use("/oauth", oauth);
 
 // app.mjs
 console.log("Hello, your app.mjs is running!");

@@ -1,6 +1,8 @@
 import 'dotenv/config'
 
 import dbHelper from '../utils/database/dbHelper.mjs';
+import userHelper from '../utils/api/user/userHelper.mjs';
+import timestamp from '../utils/general/timestamp.mjs';
 
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
@@ -26,8 +28,9 @@ const auth = {
         }
         //Check if user in db
         const userExists = await auth.emailExists(body, "check");
+        const userData = await auth.emailExists(body, "data");
         //Email not found in database - return.
-        if (!userExists) {
+        if (!userExists || !userData) {
             return {
                 data: {
                     type: "fail",
@@ -38,14 +41,12 @@ const auth = {
                 }
             }
         }
-
-        const userData = await auth.emailExists(body, "data");
-
-        if (!userData) {
+        //User can only sign in once on a device at a time
+        if(userData.currently_logged_in) {
             return {
                 data: {
                     type: "fail",
-                    message: "500. Couldn't get user data.",
+                    message: "User already signed in",
                     user: {
                         email: userInputEmail
                     }
@@ -53,43 +54,53 @@ const auth = {
             }
         }
 
-        const db = await dbHelper.connectToDatabase();
-        let storedHashedPassword;
-        //Get hashed password from database
-        try {
-            const filter = { email: userInputEmail };
-            const user = await db.users.findOne(filter);
-
-            storedHashedPassword = user.password;
-        } catch (e) {
-            console.error('Error getting password from database:', e);
-            return { error: "An error occurred while trying to get the password from database" };
-        } finally {
-            await db.client.close();
-        }
+        const storedHashedPassword = userData.password;
 
         //Compare passwords. true or false.
         const passwordCorrect = await auth.comparePasswords(userInputPassword, storedHashedPassword);
 
         if (passwordCorrect) {
+            const currentTimestamp = timestamp.getCurrentTime();
             //Password correct. Collect a jwt token.
             const payload = { email: userInputEmail };
-
             const token = jwt.sign(payload, jwtSecret, { expiresIn: '1h'});
 
-            return {
-                data: {
-                    type: "success",
-                    message: "User successfully logged in",
-                    user: {
-                        email: userInputEmail,
-                        user_id: userData._id.toString()
-                    },
-                    token: token
-                }
+            // Changes key value to show user has signed in on a device
+            const filter = {
+                _id: userData._id
             }
-        }
+            const update = {
+                currently_logged_in: true,
+                last_login: currentTimestamp
+            }
 
+            const result = await userHelper.update(filter, update);
+            if (result.status === 200) {
+                return {
+                    data: {
+                        type: "success",
+                        message: "User successfully logged in",
+                        user: {
+                            email: userInputEmail,
+                            user_id: userData._id.toString()
+                        },
+                        token: token
+                        }
+                    }
+                }
+                //Failed to update users status. 404 or 500 error
+                return {
+                    data: {
+                        type: "fail",
+                        message: "500, internal server error while trying to sign into account",
+                        user: {
+                            email: userInputEmail,
+                            user_id: userData._id.toString()
+                        },
+                        token: token
+                        }
+                    }
+                }
         //Password was incorrect
         return {
             data: {
@@ -150,9 +161,6 @@ const auth = {
 
         //No Token
         if (!token) {
-            //Ensure these are empty
-            auth.token = "";
-            auth.user = "";
             return res.status(401).json({
                 errors: {
                     status: 401,
@@ -199,7 +207,68 @@ const auth = {
             console.error("No token found.")
             return false;
         }
-    }
+    },
+    logout: async function logout(body) {
+        const userData = await auth.emailExists(body, "data");
+
+        //Email not found in database - return.
+        if (!userData) {
+            return {
+                data: {
+                    type: "fail",
+                    message: "Unable to find user.",
+                    user: {
+                        email: body.email
+                    }
+                }
+            }
+        }
+
+        if (!userData.currently_logged_in) {
+            return {
+                data: {
+                    type: "fail",
+                    message: "User already logged out.",
+                    user: {
+                        email: body.email
+                    }
+                }
+            }
+        }
+
+        const filter = {
+            _id: userData._id
+        }
+        const update = {
+            currently_logged_in: false,
+        }
+
+        const result = await userHelper.update(filter, update);
+        //All went well, user has signed out
+        if (result.status === 200) {
+            return {
+                data: {
+                    type: "success",
+                    message: "User successfully logged out",
+                    user: {
+                        email: body.email,
+                        user_id: userData._id.toString()
+                        }
+                    }
+                }
+            }
+        //Failed to update users status. 404 or 500 error
+        return {
+            data: {
+                type: "fail",
+                message: "500, internal server error while trying to sign into account",
+                user: {
+                    email: body.email,
+                    user_id: userData._id.toString()
+                    }
+                }
+            }
+        }
 }
 
 export default auth;

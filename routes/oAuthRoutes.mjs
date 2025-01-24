@@ -55,4 +55,24 @@ router.post("/login", async (req, res) => {
     }
 });
 
+router.post("/logout", async (req, res) => {
+    try {
+        const result = await auth.logout(req.body, req);
+
+        if (result.data.type == 'fail') {
+            return res.status(400).json({ message: result.data.message });
+        }
+
+        if (result.data.type == 'success') {
+            return res.status(201).json({
+                message: result.data.message,
+                email: result.data.user.email,
+            });
+        }
+    } catch (e) {
+        console.error("Error logging in...:", e);
+        return res.status(500).json({ message: "Internal Server Error" });
+    }
+});
+
 export default router;

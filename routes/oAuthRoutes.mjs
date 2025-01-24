@@ -44,7 +44,7 @@ router.post("/login", async (req, res) => {
         if (result.data.type == 'success') {
             return res.status(201).json({
                 message: result.data.message,
-                user_id: result.data.user.user_id,
+                _id: result.data.user.user_id,
                 email: result.data.user.email,
                 token: result.data.token
             });

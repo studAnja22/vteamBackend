@@ -36,7 +36,6 @@ router.get("/getUserData", async (req, res) => {
 router.post("/login", async (req, res) => {
     try {
         const result = await auth.login(req.body, req);
-        console.log(result.data)
 
         if (result.data.type == 'fail') {
             return res.status(400).json({ message: result.data.message });
@@ -45,6 +44,8 @@ router.post("/login", async (req, res) => {
         if (result.data.type == 'success') {
             return res.status(201).json({
                 message: result.data.message,
+                user_id: result.data.user.user_id,
+                email: result.data.user.email,
                 token: result.data.token
             });
         }

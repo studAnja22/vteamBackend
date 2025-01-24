@@ -25,13 +25,27 @@ const auth = {
             }
         }
         //Check if user in db
-        const userExists = await auth.emailExists(body);
+        const userExists = await auth.emailExists(body, "check");
         //Email not found in database - return.
         if (!userExists) {
             return {
                 data: {
                     type: "fail",
                     message: "incorrect username",
+                    user: {
+                        email: userInputEmail
+                    }
+                }
+            }
+        }
+
+        const userData = await auth.emailExists(body, "data");
+
+        if (!userData) {
+            return {
+                data: {
+                    type: "fail",
+                    message: "500. Couldn't get user data.",
                     user: {
                         email: userInputEmail
                     }
@@ -62,16 +76,14 @@ const auth = {
             const payload = { email: userInputEmail };
 
             const token = jwt.sign(payload, jwtSecret, { expiresIn: '1h'});
-            //Save token and user email
-            // auth.token = token;
-            //auth.user = userInputEmail;
 
             return {
                 data: {
                     type: "success",
                     message: "User successfully logged in",
                     user: {
-                        email: userInputEmail
+                        email: userInputEmail,
+                        user_id: userData._id.toString()
                     },
                     token: token
                 }
@@ -89,7 +101,7 @@ const auth = {
             }
         }
     },
-    emailExists: async function emailExists(body) {
+    emailExists: async function emailExists(body, task) {
         const email = body.email;
 
         const db = await dbHelper.connectToDatabase();
@@ -97,12 +109,20 @@ const auth = {
             const filter = { email: email };
             const foundEmail = await db.users.findOne(filter);
 
-            //Email was found in the database
-            if (foundEmail) {
-                return true;
+            switch (task) {
+                case "check":
+                    //Email was found in the database
+                    if (foundEmail) {
+                        return true;
+                    }
+                    //Email not found in the database
+                    return false;
+                case "data":
+                    // return user data or null if it didn't find user
+                    return foundEmail;
+                default:
+                    return false;
             }
-            //Email not found in the database
-            return false;
         } catch (e) {
             console.error("Error: an error occurred while checking if user email already in db");
             return null;
@@ -179,10 +199,6 @@ const auth = {
             console.error("No token found.")
             return false;
         }
-    },
-    logout: function logout() {
-        auth.token = "";
-        auth.user = "";
     }
 }
 

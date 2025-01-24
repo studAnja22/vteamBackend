@@ -80,6 +80,9 @@ const userHelper = {
     },
     increase: async function increase(filter, amountToAdd) {
         const db = await dbHelper.connectToDatabase();
+        const session = await db.client.startSession();
+        session.startTransaction();
+
         try {
             const currentTimestamp = timestamp.getCurrentTime();
             const increasePrePaidAndAddLogTransaction ={
@@ -100,18 +103,22 @@ const userHelper = {
             );
 
             if (result.matchedCount === 0) {
+                await session.abortTransaction();
                 return { status: 404, error: "No user found matching the given filter." };
             }
 
             if (result.modifiedCount === 0) {
+                await session.abortTransaction();
                 return { status: 500, error: "Failed to update users prepaid balance." };
             }
 
             return { status: 200, message: "Funds been added successfully to your account." };
         } catch (e) {
+            await session.abortTransaction();
             console.error("Internal server error while trying to update document");
             return { status: 500, error: "Error (500) while trying to add funds to prepaid balance." };
         } finally {
+            session.endSession();
             db.client.close();
         }
     },

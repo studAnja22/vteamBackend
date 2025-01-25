@@ -5,7 +5,6 @@ import admin from '../models/admin.mjs';
 import cities from '../models/cities.mjs';
 import bike from '../models/bike.mjs';
 import errorHelper from '../utils/general/errorHelper.mjs';
-import userHelper from '../utils/api/user/userHelper.mjs';
 
 const validCollections = ['bikes', 'users', 'cities'];
 

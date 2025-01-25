@@ -98,6 +98,10 @@ The form need the following params:
 `city`: The city name. Currently only these 3 are valid:  
 `Stockholm`, `Göteborg` and `Karlskrona`.
 
+### /admin user routes  
+- `PUT /:user/suspend_user`: Suspends user from activities. Updates account_suspended: true
+- `PUT /:user/revoke_suspension`: User no longer suspended. Updates account_suspended: false
+
 ### /bike routes
 - `PUT /start/:user_id/:bike_id`: Start renting a bike.  
 This will add a ride log to both the user and the bike.

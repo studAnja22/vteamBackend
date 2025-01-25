@@ -72,7 +72,7 @@ const bikeHelper = {
         return locationList[randomIndex];
     },
     adjustValue: async function adjustValue(filter, update) {
-        //filter, update: value to increase or decrease
+        //filter, update: increase or decrease value in row (key)
         const db = await dbHelper.connectToDatabase();
 
         try {
@@ -100,6 +100,7 @@ const bikeHelper = {
         }
     },
     setValue: async function setValue(filter, update) {
+        //filter, set update to replace a row (key) with a new value
         const db = await dbHelper.connectToDatabase();
         try {
             const setUpdate = { $set: update };
@@ -125,6 +126,9 @@ const bikeHelper = {
             db.client.close();
         }
     },
+    calculateRideCost: async function calculateRideCost(params) {
+        
+    }
 }
 
 export default bikeHelper;

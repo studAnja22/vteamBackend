@@ -5,6 +5,7 @@ import admin from '../models/admin.mjs';
 import cities from '../models/cities.mjs';
 import bike from '../models/bike.mjs';
 import errorHelper from '../utils/general/errorHelper.mjs';
+import userHelper from '../utils/api/user/userHelper.mjs';
 
 const validCollections = ['bikes', 'users', 'cities'];
 
@@ -227,6 +228,61 @@ router.post('/createBike', async (req, res) => {
                         "city": req.body.city
                     });
                 }
+    } catch (e) {
+        console.error(`Error during admin/createBike`, e);
+        errorHelper.handleError(e, res);
+    }
+});
+
+/**Admin User routes */
+
+//Suspend a user
+router.put('/:user/suspend_user', async (req, res) => {
+    // :user is users _id.
+    try {
+        const { user } = req.params;
+
+        const result = await admin.enableOrDisableUser(user, true);
+
+        if (result.error) {
+            return res.status(result.status).json({
+                "status": result.status,
+                "error": result.error
+            });
+        }
+
+        if (result.message === "User data updated successfully.") {
+            return res.status(200).json({
+                "status": 200,
+                "message": `User has been suspended successfully`,
+            });
+        }
+    } catch (e) {
+        console.error(`Error during admin/createBike`, e);
+        errorHelper.handleError(e, res);
+    }
+});
+
+router.put('/:user/revoke_suspension', async (req, res) => {
+    // :user is users _id.
+    try {
+        const { user } = req.params;
+
+        const result = await admin.enableOrDisableUser(user, false);
+
+        if (result.error) {
+            return res.status(result.status).json({
+                "status": result.status,
+                "error": result.error
+            });
+        }
+
+        if (result.message === "User data updated successfully.") {
+            return res.status(200).json({
+                "status": 200,
+                "message": `User suspension has been revoked successfully`,
+            });
+        }
     } catch (e) {
         console.error(`Error during admin/createBike`, e);
         errorHelper.handleError(e, res);

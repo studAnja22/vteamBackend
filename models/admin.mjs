@@ -1,6 +1,7 @@
 import dbHelper from '../utils/database/dbHelper.mjs';
 import validationHelper from '../utils/api/validationHelper.mjs';
 import adminHelper from '../utils/api/admin/adminHelper.mjs';
+import userHelper from '../utils/api/user/userHelper.mjs';
 import bcryptHelper from '../utils/authentication/bcryptHelper.mjs';
 import timestamp from '../utils/general/timestamp.mjs';
 
@@ -53,6 +54,37 @@ const admin = {
         const currentTimestamp = timestamp.getCurrentTime();
 
         return await adminHelper.saveAdmin(body, hashedPassword, currentTimestamp);
+    },
+    enableOrDisableUser: async function enableOrDisableUser(id, decision) {
+        // {id} user id. {decision} bool, true or false.
+        //Admin needs users _id to suspend them. 
+        try {
+            const userExist = await userHelper.getUser(id);
+
+            if (userExist.error) {
+                return userExist;
+            }
+
+            if (userExist.account_suspended && decision) {
+                //account_suspended: true and decision is set to true.
+                //You can't suspend the user twice...
+                return { status: 400, error: "User has already been suspended." };
+            }
+
+            if (!userExist.account_suspended && !decision) {
+                //account_suspended: false and decision is set to false
+                //User is not suspended, so there's no need to change the value to false again.
+                return { status: 400, error: "Users suspension has already been revoked." };
+            }
+
+            const filter = { _id: userExist._id};
+            const update = {
+                account_suspended: decision
+            }
+            return await userHelper.update(filter, update);
+        } catch (e) {
+            console.error(`Error during admin/:user/suspend_user`, e);
+        }
     }
 };
 

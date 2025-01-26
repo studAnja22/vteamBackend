@@ -42,7 +42,8 @@ const bike = {
         if (!bike) {
             return { status: 400, error: `Could not find bike with that id: ${bikeId}`};
         }
-
+        console.log("");
+        
         const available = !bike.rented;//An available bike have rented: false.
 
         if (!available) {
@@ -106,21 +107,34 @@ const bike = {
             return { status: 400, error: `Could not find bike with that id: ${bikeId}`};
         }
 
+        if (bike.battery === 100) {
+            return { status: 400, error: `Bikes battery is fully charged (100), can't increase battery more.`};
+        }
+
         const batteryChargingSum = bike.battery + parsedValue;
         const hexBikeId = ObjectId.createFromHexString(bikeId);
 
         let filter;
         let increase;
+        let update;
         //increase will max battery - set it to max value of 100
         if (batteryChargingSum > 100) {
             filter = { _id: hexBikeId };
-            increase = { battery: 100 };
-            return await bikeHelper.setValue(filter, increase);
+            update = { battery: 100, charging: false, };
+            return await bikeHelper.setValue(filter, update);
         }
 
         //increase will not max battery - allow the increase
         filter = { _id: hexBikeId };
+        update = { charging: true };
         increase = { battery: parsedValue };
+        //Bike is currently charging
+        const result = await bikeHelper.setValue(filter, update);
+        if (result.error) {
+            //Something went wrong when trying up set charging: true.
+            return result;
+        }
+        //Increase battery
         return await bikeHelper.adjustValue(filter, increase);
     },
     decreaseBattery: async function decreaseBattery(bikeId, value) {
@@ -140,21 +154,34 @@ const bike = {
             return { status: 400, error: `Could not find bike with that id: ${bikeId}`};
         }
 
+        if (bike.battery === 0) {
+            return { status: 400, error: `Bikes battery is currently 0, cannot decrease it anymore. Please charge the bike...`};
+        }
+
         const batteryChargingSum = bike.battery - parsedValue;
         const hexBikeId = ObjectId.createFromHexString(bikeId);
 
         let filter;
         let decrease;
+        let update;
         //decrease will drain battery below zero - set it to min value of 0
         if (batteryChargingSum < 0) {
             filter = { _id: hexBikeId };
-            decrease = { battery: 0 };
-            return await bikeHelper.setValue(filter, decrease);
+            update = { battery: 0, charging: false };
+            return await bikeHelper.setValue(filter, update);
         }
 
         //increase will not drain battery below zero - allow the decrease
         filter = { _id: hexBikeId };
         decrease = { battery: -parsedValue };
+        update = { charging: false };
+        //Bike isn't charging
+        const result = await bikeHelper.setValue(filter, update);
+        if (result.error) {
+            //Something went wrong when trying up set charging: false
+            return result;
+        }
+        //Battery is draining...
         return await bikeHelper.adjustValue(filter, decrease);
     },
     updatePosition: async function updatePosition(bikeId, position) {

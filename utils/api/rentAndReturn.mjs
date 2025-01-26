@@ -112,12 +112,12 @@ const rentAndReturn = {
             start: {
                 longitude: bike.current_location.longitude,
                 latitude: bike.current_location.latitude,
-                parking_type: null,//FIX THIS
+                parking_type: null,//FIX THIS // start_from_parkingLot
             },
             stop: { 
                 longitude: null,
                 latitude: null,
-                parking_type: null,
+                parking_type: null, //parked_in_parkingLot
             }
             },
             price: null,

@@ -65,7 +65,7 @@ router.put('/battery/increase/:amount/:bike_id', async (req, res) => {
 
         return res.status(200).json({
             "status": updateResult.status,
-            "message": "Battery updated successfully."
+            "message": "Battery increased successfully."
         });
     } catch (e) {
         console.error("Internal server error while trying to update bike battery", e);
@@ -88,7 +88,7 @@ router.put('/battery/decrease/:amount/:bike_id', async (req, res) => {
 
         return res.status(200).json({
             "status": updateResult.status,
-            "message": "Battery updated successfully."
+            "message": "Battery decreased successfully."
         });
     } catch (e) {
         console.error("Internal server error while trying to update bike battery", e);

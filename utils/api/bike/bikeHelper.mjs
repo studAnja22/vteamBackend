@@ -34,6 +34,7 @@ const bikeHelper = {
                 current_speed: 0,
                 status: "available",
                 battery: 100,
+                charging: false,
                 parked: true,
                 rented: false,
                 in_parking_zone: true,
@@ -116,8 +117,7 @@ const bikeHelper = {
             if (result.modifiedCount === 0) {
                 return { status: 200, message: "No changes made to the bike data." };
             }
-            console.log("Set bike yay");
-            
+
             return { status: 200, message: "bike battery updated successfully." };
         } catch (e) {
             console.error("Internal server error while trying to update document");

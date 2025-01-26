@@ -38,7 +38,6 @@ const bikeHelper = {
                 parked: true,
                 rented: false,
                 in_parking_zone: true,
-                in_free_parking: false,
                 disabled: false,
                 color_code: "green",
                 ride_log: []

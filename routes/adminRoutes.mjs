@@ -233,15 +233,67 @@ router.post('/createBike', async (req, res) => {
     }
 });
 
+router.put('/bike/:bike/disable', async (req, res) => {
+    // :bike is bikes _id.
+    try {
+        const { bike } = req.params;
+
+        const result = await admin.enableOrDisable("bike", bike, true);
+
+        if (result.error) {
+            return res.status(result.status).json({
+                "status": result.status,
+                "error": result.error
+            });
+        }
+
+        if (result.message === "bike battery updated successfully.") {
+            return res.status(200).json({
+                "status": 200,
+                "message": `bike disabled successfully`,
+            });
+        }
+    } catch (e) {
+        console.error(`Error during admin/createBike`, e);
+        errorHelper.handleError(e, res);
+    }
+});
+
+router.put('/bike/:bike/enable', async (req, res) => {
+    // :bike is bikes _id.
+    try {
+        const { bike } = req.params;
+
+        const result = await admin.enableOrDisable("bike", bike, false);
+
+        if (result.error) {
+            return res.status(result.status).json({
+                "status": result.status,
+                "error": result.error
+            });
+        }
+
+        if (result.message === "bike battery updated successfully.") {
+            return res.status(200).json({
+                "status": 200,
+                "message": `bike enabled successfully`,
+            });
+        }
+    } catch (e) {
+        console.error(`Error during admin/createBike`, e);
+        errorHelper.handleError(e, res);
+    }
+});
+
 /**Admin User routes */
 
-//Suspend a user
+//Suspend a user.
 router.put('/:user/suspend_user', async (req, res) => {
     // :user is users _id.
     try {
         const { user } = req.params;
 
-        const result = await admin.enableOrDisableUser(user, true);
+        const result = await admin.enableOrDisable("user", user, true);
 
         if (result.error) {
             return res.status(result.status).json({
@@ -261,13 +313,13 @@ router.put('/:user/suspend_user', async (req, res) => {
         errorHelper.handleError(e, res);
     }
 });
-
+//Undo the suspension.
 router.put('/:user/revoke_suspension', async (req, res) => {
     // :user is users _id.
     try {
         const { user } = req.params;
 
-        const result = await admin.enableOrDisableUser(user, false);
+        const result = await admin.enableOrDisable("user", user, false);
 
         if (result.error) {
             return res.status(result.status).json({

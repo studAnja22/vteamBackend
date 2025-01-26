@@ -4,6 +4,7 @@ import adminHelper from '../utils/api/admin/adminHelper.mjs';
 import userHelper from '../utils/api/user/userHelper.mjs';
 import bcryptHelper from '../utils/authentication/bcryptHelper.mjs';
 import timestamp from '../utils/general/timestamp.mjs';
+import bikeHelper from '../utils/api/bike/bikeHelper.mjs';
 
 const admin = {
     getAllFromCollection: async function getAllFromCollection(collectionName) {
@@ -55,35 +56,67 @@ const admin = {
 
         return await adminHelper.saveAdmin(body, hashedPassword, currentTimestamp);
     },
-    enableOrDisableUser: async function enableOrDisableUser(id, decision) {
-        // {id} user id. {decision} bool, true or false.
-        //Admin needs users _id to suspend them. 
+    enableOrDisable: async function enableOrDisable(target, id, decision) {
+        // {target} "user" or "bike",{id} user id. {decision} bool, true or false.
+        //Admin needs users _id to suspend them.
+        let filter;
+        let update;
         try {
-            const userExist = await userHelper.getUser(id);
+            switch (target) {
+                case "user":
+                    const userExist = await userHelper.getUser(id);
 
-            if (userExist.error) {
-                return userExist;
-            }
+                    if (userExist.error) {
+                        return userExist;
+                    }
 
-            if (userExist.account_suspended && decision) {
-                //account_suspended: true and decision is set to true.
-                //You can't suspend the user twice...
-                return { status: 400, error: "User has already been suspended." };
-            }
+                    if (userExist.account_suspended && decision) {
+                        //account_suspended: true and decision is set to true.
+                        //You can't suspend the user twice...
+                        return { status: 400, error: "User has already been suspended." };
+                    }
 
-            if (!userExist.account_suspended && !decision) {
-                //account_suspended: false and decision is set to false
-                //User is not suspended, so there's no need to change the value to false again.
-                return { status: 400, error: "Users suspension has already been revoked." };
-            }
+                    if (!userExist.account_suspended && !decision) {
+                        //account_suspended: false and decision is set to false
+                        //User is not suspended, so there's no need to change the value to false again.
+                        return { status: 400, error: "Users suspension has already been revoked." };
+                    }
 
-            const filter = { _id: userExist._id};
-            const update = {
-                account_suspended: decision
+                    filter = { _id: userExist._id};
+                    update = {
+                        account_suspended: decision
+                    }
+                    return await userHelper.update(filter, update);
+                case "bike":
+                    const bikeExist = await bikeHelper.getBike(id);
+
+                    if (!bikeExist) {
+                        return { status: 404, error: "No Bike found matching the given filter." };
+                    }
+
+                    if (bikeExist.disabled && decision) {
+                        //disabled: true and decision is set to true.
+                        //You can't disabled the the bike twice...
+                        return { status: 400, error: "Bike is already disabled." };
+                    }
+
+                    if (!bikeExist.disabled && !decision) {
+                        //disabled: false and decision is set to false
+                        //Bike is not disabled, no need to set disabled to false again.
+                        return { status: 400, error: "Bike is already enabled." };
+                    }
+
+                    filter = { _id: bikeExist._id};
+                    update = {
+                        disabled: decision
+                    }
+
+                    return await bikeHelper.setValue(filter, update);
+                default:
+                    return { status: 400, error: `admin.enableOrDisable() cannot be done. Target value needs to be 'user' or 'bike'. Target value submitted was: ${target}` };
             }
-            return await userHelper.update(filter, update);
         } catch (e) {
-            console.error(`Error during admin/:user/suspend_user`, e);
+            console.error(`Unexpected Error during admin.enableOrDisable`, e);
         }
     }
 };

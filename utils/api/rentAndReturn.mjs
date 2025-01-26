@@ -21,7 +21,8 @@ const rentAndReturn = {
                 status: "rented",
                 parked: false,
                 rented: true,
-                color_code: "white"
+                color_code: "white",
+                charging: false,
             };
             const bikeLog = rentAndReturn.makeLog('bike', currentTimestamp, hexUserId, bike);
 
@@ -112,12 +113,12 @@ const rentAndReturn = {
             start: {
                 longitude: bike.current_location.longitude,
                 latitude: bike.current_location.latitude,
-                parking_type: null,//FIX THIS // start_from_parkingLot
+                start_from_parkingLot: bike.in_parking_zone,
             },
             stop: { 
                 longitude: null,
                 latitude: null,
-                parking_type: null, //parked_in_parkingLot
+                parked_in_parkingLot: null,
             }
             },
             price: null,
@@ -191,7 +192,6 @@ const rentAndReturn = {
             }
             return { status: 200, message: 'Ride stopped successfully' };
         } catch (e) {
-            
             console.error("Internal server error while trying to rent :(", e);
             return { status: 500, error: "And unexpected error occurred while trying to rent the bike" };
         }
@@ -237,7 +237,7 @@ const rentAndReturn = {
             stop: { 
                 longitude: bike.current_location.longitude,
                 latitude: bike.current_location.latitude,
-                parking_type: null,
+                parked_in_parkingLot: bike.in_parking_zone,
             }
             },
             price: 100,//Fixed price now, to be FIXED later.

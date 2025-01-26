@@ -97,6 +97,8 @@ The form needs the following params: `city` and `address`
 The form need the following params:  
 `city`: The city name. Currently only these 3 are valid:  
 `Stockholm`, `Göteborg` and `Karlskrona`.
+- `PUT /bike/:bike/disable`: disable a bike. puts disabled: true, if it isn't already.
+- `PUT /bike/:bike/enable`: enable a bike. puts disabled: false, if it isn't already.
 
 ### /admin user routes  
 - `PUT /:user/suspend_user`: Suspends user from activities. Updates account_suspended: true

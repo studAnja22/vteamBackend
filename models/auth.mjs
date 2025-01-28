@@ -27,8 +27,8 @@ const auth = {
             }
         }
         //Check if user in db
-        const userExists = await auth.emailExists(body, "check");
-        const userData = await auth.emailExists(body, "data");
+        const userExists = await auth.emailExists(body.email, "check");
+        const userData = await auth.emailExists(body.email, "data");
         //Email not found in database - return.
         if (!userExists || !userData) {
             return {
@@ -113,8 +113,9 @@ const auth = {
         }
     },
     emailExists: async function emailExists(body, task) {
-        const email = body.email;
-
+        const email = body;
+        console.log("email exists", email);
+        
         const db = await dbHelper.connectToDatabase();
         try {
             const filter = { email: email };
@@ -209,7 +210,7 @@ const auth = {
         }
     },
     logout: async function logout(body) {
-        const userData = await auth.emailExists(body, "data");
+        const userData = await auth.emailExists(body.email, "data");
 
         //Email not found in database - return.
         if (!userData) {

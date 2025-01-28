@@ -28,7 +28,7 @@ router.post('/register', async (req, res) => {
     }
 });
 //Get details of a single account
-router.get('/details/:user_id', async (req, res) => {//Ändra till useer email
+router.get('/details/:user_id', async (req, res) => {//Hämta ut med email.
     try {
         const {user_id} = req.params;
         const result = await user.getDetails(user_id);
@@ -55,6 +55,8 @@ router.get('/details/:user_id', async (req, res) => {//Ändra till useer email
         errorHelper.handleError(e, res);
     }
 });
+
+
 //Update user info: name
 router.put('/update/name', async (req, res) => {
     try {
@@ -120,7 +122,7 @@ router.put('/update/prepaid', async (req, res) => {
             "message": "Successfully added funds to prepaid"
         });
     } catch (e) {
-        console.error("Internal server error while trying to add funds to prepaid.");
+        console.error("Internal server error while trying to add funds to prepaid.", e);
         return { status: 500, error: "Error (500) while trying to add funds to prepaid." };
     }
 });

@@ -75,20 +75,14 @@ const user = {
             return { status: 400, error: "Missing users email - can't add money to prepaid card." };
         }
 
-        const userData = await auth.emailExists(body, "data");
+        const userData = await auth.emailExists(userEmail, "data");
 
         if (!userData) {
-            return res.status(404).json({ 
-                status: 404,
-                error: "Something went wrong, Unable to find user."
-            });
+            return { status: 404, error: "Something went wrong, Unable to find user." };
         }
 
         if (isNaN(amountToAdd) || amountToAdd <= 0) {
-            return res.status(400).json({ 
-                status: 400,
-                error: "Invalid amount. Please provide a positive number."
-            });
+            return { status: 400, error: "Invalid amount. Please provide a positive number." };
         }
 
         const filter = { email: userEmail };

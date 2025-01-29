@@ -125,7 +125,7 @@ const bikeHelper = {
             db.client.close();
         }
     },
-    calculateRideCost: async function calculateRideCost(params) {
+    nearParkingLot: async function nearParkingLot() {
         
     }
 }

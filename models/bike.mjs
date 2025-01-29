@@ -4,6 +4,8 @@ import validationHelper from '../utils/api/validationHelper.mjs';
 import { ObjectId } from 'mongodb';
 import userHelper from '../utils/api/user/userHelper.mjs';
 import rentAndReturn from '../utils/api/rentAndReturn.mjs';
+import admin from './admin.mjs';
+import calculate from '../utils/general/calculations.mjs';
 
 const bike = {
     createBike: async function createBike(body) {
@@ -214,6 +216,30 @@ const bike = {
             }
         }
         return await bikeHelper.setValue(filter, currentPosition);
+    },
+    typeOfParking: async function typeOfParking(cityName, bikeLon, bikeLat) {
+        const data = await admin.getAllFromCollection("cities");
+
+        const city = data.find(city => city.city === cityName);
+
+        if (!city) {
+            return { status: 400, error: `Unable to find city with name ${cityName}`};
+        }
+
+        const parkingLots = city.parking_locations;
+
+        for (let i = 0; i < parkingLots.length; i++) {
+            const { longitude, latitude } = parkingLots;
+
+            const distance = calculate.haversine(bikeLon, bikeLat, longitude, latitude);
+
+            if (distance <= 40) {
+                //Bike is within a parking zone
+                return true;
+            }
+        }
+        //Bike is not near a parking lot
+        return false;
     }
 };
 

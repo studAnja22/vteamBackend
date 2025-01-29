@@ -1,6 +1,8 @@
 import dbHelper from "../database/dbHelper.mjs";
 import { ObjectId } from "mongodb";
 import timestamp from "../general/timestamp.mjs";
+import calculate from "../general/calculations.mjs";
+import bike from "../../models/bike.mjs";
 
 const rentAndReturn = {
     start: async function start(userId, bikeId, bike) {
@@ -107,7 +109,9 @@ const rentAndReturn = {
             [logKey]: id,
             time: {
                 start: timestamp,
-                stop: null
+                stop: null,
+                timestamp_start: Date.now(),
+                timestamp_stop: null,
             },
             location: {
             start: {
@@ -121,6 +125,7 @@ const rentAndReturn = {
                 parked_in_parkingLot: null,
             }
             },
+            ride_duration: null,
             price: null,
             complete_log: false
         };
@@ -133,11 +138,39 @@ const rentAndReturn = {
 
         try {
             const currentTimestamp = timestamp.getCurrentTime();
+
             const hexBikeId = ObjectId.createFromHexString(bikeId);
             const hexUserId = ObjectId.createFromHexString(userId);
 
+            /** Calculate time user had bike */
+            const incompleteLog = bike.ride_log.find(log => log.complete_log === false);
+            const timeDuration = incompleteLog.time.timestamp_start - Date.now();
+
+            /** Type of parking. In a parking zone or free parking? (bool)*/
+            const startPosition = incompleteLog.location.start.start_from_parkingLot;
+            const currentParkingType = await rentAndReturn.checkParking(bike);
+
+            //Check if all went well.
+            if (currentParkingType.error) {
+                await session.abortTransaction();
+                return { status: 500, error: "something boom" };
+            }
+            /** Calculate ride cost */
+            const cost = calculate.rideCost(startPosition, currentParkingType, timeDuration);
+
+            const rideData = {
+                db,
+                session,
+                currentTimestamp,
+                hexBikeId,
+                hexUserId,
+                currentParkingType,
+                timeDuration,
+                cost,
+                bike
+            }
             /** Returns the bike and updates the ride_log.*/
-            const returnBike = await rentAndReturn.endRideBike(db, session, currentTimestamp, hexBikeId, hexUserId, bike);
+            const returnBike = await rentAndReturn.endRideBike(rideData);
             //Check if all went well.
             if (returnBike.error) {
                 await session.abortTransaction();
@@ -145,7 +178,7 @@ const rentAndReturn = {
             }
 
             /** User returns bike */
-            const userReturnsBike = await rentAndReturn.endRideUser(db, session, currentTimestamp, hexBikeId, hexUserId, bike);
+            const userReturnsBike = await rentAndReturn.endRideUser(rideData);
             //Check if all went well.
             if (userReturnsBike.error) {
                 await session.abortTransaction();
@@ -163,7 +196,7 @@ const rentAndReturn = {
             db.client.close();
         }
     },
-    endRideBike: async function endRideBike(db, session, currentTimestamp, hexBikeId, hexUserId, bike) {
+    endRideBike: async function endRideBike({db, session, currentTimestamp, hexBikeId, hexUserId, currentParkingType, timeDuration, cost, bike}) {
         try {
             const collection = db.bikes;
 
@@ -183,7 +216,7 @@ const rentAndReturn = {
             }
 
             /** Update bike log */
-            const bikeLog = rentAndReturn.returnLog(currentTimestamp, bike);
+            const bikeLog = rentAndReturn.returnLog(currentTimestamp, bike, currentParkingType, timeDuration, cost);
 
             const updateBikeResult = await rentAndReturn.returnBike(collection, filter, bikeLog, hexUserId, session, "bike");
             //Check if all went well.
@@ -196,7 +229,7 @@ const rentAndReturn = {
             return { status: 500, error: "And unexpected error occurred while trying to rent the bike" };
         }
     },
-    endRideUser: async function endRideUser(db, session, currentTimestamp, hexBikeId, hexUserId, bike) {
+    endRideUser: async function endRideUser({db, session, currentTimestamp, hexBikeId, hexUserId, currentParkingType, timeDuration, cost, bike}) {
         try {
             const collection = db.users;
 
@@ -214,7 +247,7 @@ const rentAndReturn = {
             }
 
             /** Update bike log */
-            const bikeLog = rentAndReturn.returnLog(currentTimestamp, bike);
+            const bikeLog = rentAndReturn.returnLog(currentTimestamp, bike, currentParkingType, timeDuration, cost);
 
             const updateUserRideLog = await rentAndReturn.returnBike(collection, filter, bikeLog, hexBikeId, session, "user");
             //Check if all went well.
@@ -228,19 +261,21 @@ const rentAndReturn = {
             return { status: 500, error: "And unexpected error occurred while trying to rent the bike" };
         }
     },
-    returnLog: function returnLog(timestamp, bike) {
+    returnLog: function returnLog(timestamp, bike, parkingType, duration, cost) {
         const log = {
             time: {
-                stop: timestamp
+                stop: timestamp,
+                timestamp_stop: Date.now(),
             },
             location: {
             stop: { 
                 longitude: bike.current_location.longitude,
                 latitude: bike.current_location.latitude,
-                parked_in_parkingLot: bike.in_parking_zone,
+                parked_in_parkingLot: parkingType,
             }
             },
-            price: 100,//Fixed price now, to be FIXED later.
+            ride_duration: duration,
+            price: cost,
             complete_log: true
         };
         return log;
@@ -285,7 +320,9 @@ const rentAndReturn = {
             const setUpdate = { 
                 $set: {
                     "ride_log.$[log].time.stop": bikeLog.time.stop,
+                    "ride_log.$[log].time.timestamp_stop": bikeLog.time.timestamp_stop,
                     "ride_log.$[log].location.stop": bikeLog.location.stop,
+                    "ride_log.$[log].ride_duration": bikeLog.duration,
                     "ride_log.$[log].price": bikeLog.price,
                     "ride_log.$[log].complete_log": true
                     }
@@ -313,6 +350,10 @@ const rentAndReturn = {
             console.error("Internal server error while trying to update document", e);
             return { status: 500, error: `Error (500) while trying to rent a bike.` };
         }
+    },
+    checkParking: async function checkParking(bikeData) {
+        /** Checks is parking is in a parking zone (returns true) or if it's free parking (returns false) */
+        return await bike.typeOfParking(bikeData.city, bikeData.current_location.longitude, bikeData.current_location.latitude);
     }
 };
 

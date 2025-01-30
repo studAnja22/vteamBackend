@@ -36,13 +36,13 @@ const calculate = {
             if (cost <= 0) {
                 return 0;
             }
-            return cost;
+            return Math.floor(cost);
         }
 
         if (start && !finish || !start && !finish) {
             //User started from a parking zone or free parking, but left the bike in free parking.
             //Bad user gets an extra fee
-            return cost + 20;
+            return Math.floor(cost + 20);
         }
 
         if (!start && finish) {
@@ -52,7 +52,7 @@ const calculate = {
             if (cost <= 0) {
                 return 0;
             }
-            return cost;
+            return Math.floor(cost);
         }
     }
 }

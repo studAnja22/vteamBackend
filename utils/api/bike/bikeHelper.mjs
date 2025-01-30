@@ -125,9 +125,6 @@ const bikeHelper = {
             db.client.close();
         }
     },
-    nearParkingLot: async function nearParkingLot() {
-        
-    }
 }
 
 export default bikeHelper;

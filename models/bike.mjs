@@ -91,8 +91,10 @@ const bike = {
         // return { status: 400, message: `testing things in stop`};
         return await rentAndReturn.stop(userId, bikeId, bike);
     },
-    increaseBattery: async function increaseBattery(bikeId, value) {
+    increaseValue: async function increaseValue(bikeId, value, target) {
         if (!ObjectId.isValid(bikeId)) {
+            console.log("Why are we here??", bikeId.length);
+            
             return { status: 400, error: "Invalid id format. id must be 24 characters" };
         }
 
@@ -109,37 +111,64 @@ const bike = {
             return { status: 400, error: `Could not find bike with that id: ${bikeId}`};
         }
 
-        if (bike.battery === 100) {
-            return { status: 400, error: `Bikes battery is fully charged (100), can't increase battery more.`};
-        }
-
-        const batteryChargingSum = bike.battery + parsedValue;
         const hexBikeId = ObjectId.createFromHexString(bikeId);
 
         let filter;
         let increase;
         let update;
-        //increase will max battery - set it to max value of 100
-        if (batteryChargingSum > 100) {
-            filter = { _id: hexBikeId };
-            update = { battery: 100, charging: false, };
-            return await bikeHelper.setValue(filter, update);
-        }
+        let result;
+        switch (target) {
+            case "battery":
+                if (bike.battery === 100) {
+                    return { status: 400, error: `Bikes battery is fully charged (100), can't increase battery more.`};
+                }
 
-        //increase will not max battery - allow the increase
-        filter = { _id: hexBikeId };
-        update = { charging: true };
-        increase = { battery: parsedValue };
-        //Bike is currently charging
-        const result = await bikeHelper.setValue(filter, update);
-        if (result.error) {
-            //Something went wrong when trying up set charging: true.
-            return result;
-        }
-        //Increase battery
-        return await bikeHelper.adjustValue(filter, increase);
+                const batteryChargingSum = bike.battery + parsedValue;
+
+                //increase will max battery - set it to max value of 100
+                if (batteryChargingSum > 100) {
+                    filter = { _id: hexBikeId };
+                    update = { battery: 100, charging: false, };
+                    return await bikeHelper.setValue(filter, update);
+                }
+
+                //increase will not max battery - allow the increase
+                filter = { _id: hexBikeId };
+                update = { charging: true };
+                increase = { battery: parsedValue };
+                //Bike is currently charging
+                result = await bikeHelper.setValue(filter, update);
+                if (result.error) {
+                    //Something went wrong when trying up set charging: true.
+                    return result;
+                }
+                //Increase battery
+                return await bikeHelper.adjustValue(filter, increase);
+            case "speed":
+                if (bike.current_speed === 20) {
+                    return { status: 400, error: `Bikes speed is currently at max speed, cannot go faster than this.`};
+                }
+
+                const speedSum = bike.current_speed + parsedValue;
+
+                //increase will max speed - set it to max value of 100
+                if (speedSum > 20) {
+                    filter = { _id: hexBikeId };
+                    update = { current_speed: 20 };
+                    return await bikeHelper.setValue(filter, update);
+                }
+
+                //increase will not max speed - allow the increase
+                filter = { _id: hexBikeId };
+                increase = { current_speed: parsedValue };
+
+                //Increase speed
+                return await bikeHelper.adjustValue(filter, increase);
+            default:
+                return { status: 400, error: `Current target to increase not valid (target: ${target}). Valid targets: speed, battery.`};
+            }
     },
-    decreaseBattery: async function decreaseBattery(bikeId, value) {
+    decreaseValue: async function decreaseValue(bikeId, value, target) {
         if (!ObjectId.isValid(bikeId)) {
             return { status: 400, error: "Invalid id format. id must be 24 characters" };
         }
@@ -156,35 +185,63 @@ const bike = {
             return { status: 400, error: `Could not find bike with that id: ${bikeId}`};
         }
 
-        if (bike.battery === 0) {
-            return { status: 400, error: `Bikes battery is currently 0, cannot decrease it anymore. Please charge the bike...`};
-        }
-
-        const batteryChargingSum = bike.battery - parsedValue;
         const hexBikeId = ObjectId.createFromHexString(bikeId);
 
         let filter;
         let decrease;
         let update;
-        //decrease will drain battery below zero - set it to min value of 0
-        if (batteryChargingSum < 0) {
-            filter = { _id: hexBikeId };
-            update = { battery: 0, charging: false };
-            return await bikeHelper.setValue(filter, update);
-        }
 
-        //increase will not drain battery below zero - allow the decrease
-        filter = { _id: hexBikeId };
-        decrease = { battery: -parsedValue };
-        update = { charging: false };
-        //Bike isn't charging
-        const result = await bikeHelper.setValue(filter, update);
-        if (result.error) {
-            //Something went wrong when trying up set charging: false
-            return result;
+        switch (target) {
+            case "battery":
+                if (bike.battery === 0) {
+                    return { status: 400, error: `Bikes battery is currently 0, cannot decrease it anymore. Please charge the bike...`};
+                }
+
+                const batteryChargingSum = bike.battery - parsedValue;
+
+                //decrease will drain battery below zero - set it to min value of 0
+                if (batteryChargingSum < 0) {
+                    filter = { _id: hexBikeId };
+                    update = { battery: 0, charging: false };
+                    return await bikeHelper.setValue(filter, update);
+                }
+        
+                //decrease will not drain battery below zero - allow the decrease
+                filter = { _id: hexBikeId };
+                decrease = { battery: -parsedValue };
+                update = { charging: false };
+                //Bike isn't charging
+                const result = await bikeHelper.setValue(filter, update);
+                if (result.error) {
+                    //Something went wrong when trying up set charging: false
+                    return result;
+                }
+                //Battery is draining...
+                return await bikeHelper.adjustValue(filter, decrease);
+                
+            case "speed":
+                if (bike.current_speed === 0) {
+                    return { status: 400, error: `Bikes speed is currently at 0. Can't decrease it anymore than that...`};
+                }
+
+                const speedSum = bike.current_speed - parsedValue;
+
+                //decrease will go below zero. Set speed to 0.
+                if (speedSum < 0) {
+                    filter = { _id: hexBikeId };
+                    update = { current_speed: 0 };
+                    return await bikeHelper.setValue(filter, update);
+                }
+
+                //decrease will not stop the bike - allow the decrease
+                filter = { _id: hexBikeId };
+                decrease = { current_speed: -parsedValue };
+
+                //decrease speed
+                return await bikeHelper.adjustValue(filter, decrease);
+            default:
+                return { status: 400, error: `Current target to decrease not valid (target: ${target}). Valid targets: speed, battery.`};
         }
-        //Battery is draining...
-        return await bikeHelper.adjustValue(filter, decrease);
     },
     updatePosition: async function updatePosition(bikeId, position) {
         if (!ObjectId.isValid(bikeId)) {

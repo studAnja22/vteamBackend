@@ -49,12 +49,59 @@ router.put('/stop/:user_id/:bike_id', async (req, res) => {
     }
 });
 
+//Increase speed
+router.put('/speed/increase/:amount/:bike_id', async (req, res) => {
+    try {
+        const { amount, bike_id } = req.params;
+
+        const updateResult = await bike.increaseValue(bike_id, amount, "speed");
+
+        if (updateResult.error) {
+            return res.status(updateResult.status).json({
+                "status": updateResult.status,
+                "error": updateResult.error
+            });
+        }
+
+        return res.status(200).json({
+            "status": updateResult.status,
+            "message": "Speed increased successfully."
+        });
+    } catch (e) {
+        console.error("Internal server error while trying to update bike speed", e);
+        return { status: 500, error: "Error (500) while trying to update bike speed" };
+    }
+});
+
+//decrease speed
+router.put('/speed/decrease/:amount/:bike_id', async (req, res) => {
+    try {
+        const { amount, bike_id } = req.params;
+        const updateResult = await bike.decreaseValue(bike_id, amount, "speed");
+
+        if (updateResult.error) {
+            return res.status(updateResult.status).json({
+                "status": updateResult.status,
+                "error": updateResult.error
+            });
+        }
+
+        return res.status(200).json({
+            "status": updateResult.status,
+            "message": "Speed decreased successfully."
+        });
+    } catch (e) {
+        console.error("Internal server error while trying to update bike speed", e);
+        return { status: 500, error: "Error (500) while trying to update bike speed" };
+    }
+});
+
 //Increase battery
 router.put('/battery/increase/:amount/:bike_id', async (req, res) => {
     try {
         const { amount, bike_id } = req.params;
 
-        const updateResult = await bike.increaseBattery(bike_id, amount);
+        const updateResult = await bike.increaseValue(bike_id, amount, "battery");
 
         if (updateResult.error) {
             return res.status(updateResult.status).json({
@@ -77,7 +124,7 @@ router.put('/battery/increase/:amount/:bike_id', async (req, res) => {
 router.put('/battery/decrease/:amount/:bike_id', async (req, res) => {
     try {
         const { amount, bike_id } = req.params;
-        const updateResult = await bike.decreaseBattery(bike_id, amount);
+        const updateResult = await bike.decreaseValue(bike_id, amount, "battery");
 
         if (updateResult.error) {
             return res.status(updateResult.status).json({

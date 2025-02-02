@@ -110,6 +110,9 @@ This will add a ride log to both the user and the bike.
 - `PUT /stop/:user_id/:bike_id`: Return a bike and update the ride_log  
 Currently the price is fixed, but that will be updated shortly.
 
+- `PUT /speed/increase/:amount/:bike_id`: increase speed. example /speed/increase/10/:bike123 will increase bike123 speed by 10 point. A bike can have a max speed of 20 and min speed of 0.
+-`PUT /speed/decrease/:amount/:bike_id`: decrease speed. /speed/decrease/10/:bike123 will decrease bikes speed by 10 points. A bike can decrease speed to 0.
+
 - `PUT /battery/increase/:amount/:bike_id`: charge battery. example /battery/increase/10/:bike123 will increase bike123 with battery with 10 point. Battery will never exceed 100 points.
 - `PUT /battery/decrease/:amount/:bike_id`: drain battery. Battery will never be lower than 0 points.
 

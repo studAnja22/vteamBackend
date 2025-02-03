@@ -1,7 +1,12 @@
+
 const calculate = {
     haversine: function haversine(bikeLon, bikeLat, parkingLon, parkingLat) {
         const earthRadiusInMeters = 6371000;
 
+        if (bikeLat === parkingLat && bikeLon === parkingLon) {
+            //Bike has not moved from the parking lot
+            return 0;
+        }
         const diffLat = calculate.convertDegreeToRadians(bikeLat - parkingLat);
         const diffLon = calculate.convertDegreeToRadians(bikeLon - parkingLon);
         const bikeLatRadians = calculate.convertDegreeToRadians(bikeLat);
@@ -10,6 +15,7 @@ const calculate = {
         const a = Math.pow(Math.sin(diffLat/2), 2) + Math.pow(Math.sin(diffLon), 2) * Math.cos(bikeLatRadians) * Math.cos(parkingLatRadians);
 
         const c = 2 * Math.asin(Math.sqrt(a));
+
         return earthRadiusInMeters * c;
     },
     convertDegreeToRadians: function convertDegreeToRadians(degree) {

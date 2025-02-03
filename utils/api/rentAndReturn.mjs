@@ -3,6 +3,7 @@ import { ObjectId } from "mongodb";
 import timestamp from "../general/timestamp.mjs";
 import calculate from "../general/calculations.mjs";
 import bike from "../../models/bike.mjs";
+import userHelper from "./user/userHelper.mjs";
 
 const rentAndReturn = {
     start: async function start(userId, bikeId, bike) {
@@ -144,7 +145,7 @@ const rentAndReturn = {
 
             /** Calculate time user had bike */
             const incompleteLog = bike.ride_log.find(log => log.complete_log === false);
-            const timeDuration = incompleteLog.time.timestamp_start - Date.now();
+            const timeDuration = Date.now() - incompleteLog.time.timestamp_start;
 
             /** Type of parking. In a parking zone or free parking? (bool)*/
             const startPosition = incompleteLog.location.start.start_from_parkingLot;
@@ -153,10 +154,31 @@ const rentAndReturn = {
             //Check if all went well.
             if (currentParkingType.error) {
                 await session.abortTransaction();
-                return { status: 500, error: "something boom" };
+                return { status: 500, error: "500: unexpected error occurred when trying to calculate parking zone." };
             }
             /** Calculate ride cost */
             const cost = calculate.rideCost(startPosition, currentParkingType, timeDuration);
+
+            //Increase user debt.
+            const user = await userHelper.getUser(userId);
+
+            //check if it all went well
+            if (user.error) {
+                await session.abortTransaction();
+                return { status: `${user.status}`, error: `${user.error}` };
+            }
+
+            let filter = { _id: hexUserId };
+            let update = {
+                monthly_debt: user.monthly_debt + cost
+            };
+
+            const addToUserDebt = userHelper.update(filter, update);
+            //Check if it all went well
+            if (addToUserDebt.error) {
+                await session.abortTransaction();
+                return { status: `${addToUserDebt.status}`, error: `${addToUserDebt.error}` };
+            }
 
             const rideData = {
                 db,
@@ -250,6 +272,7 @@ const rentAndReturn = {
             const bikeLog = rentAndReturn.returnLog(currentTimestamp, bike, currentParkingType, timeDuration, cost);
 
             const updateUserRideLog = await rentAndReturn.returnBike(collection, filter, bikeLog, hexBikeId, session, "user");
+
             //Check if all went well.
             if (updateUserRideLog.error) {
                 return { status: 500, error: updateUserRideLog.error };
@@ -322,7 +345,7 @@ const rentAndReturn = {
                     "ride_log.$[log].time.stop": bikeLog.time.stop,
                     "ride_log.$[log].time.timestamp_stop": bikeLog.time.timestamp_stop,
                     "ride_log.$[log].location.stop": bikeLog.location.stop,
-                    "ride_log.$[log].ride_duration": bikeLog.duration,
+                    "ride_log.$[log].ride_duration": bikeLog.ride_duration,
                     "ride_log.$[log].price": bikeLog.price,
                     "ride_log.$[log].complete_log": true
                     }

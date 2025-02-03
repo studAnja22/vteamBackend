@@ -286,7 +286,7 @@ const bike = {
         const parkingLots = city.parking_locations;
 
         for (let i = 0; i < parkingLots.length; i++) {
-            const { longitude, latitude } = parkingLots;
+            const { longitude, latitude } = parkingLots[i];
 
             const distance = calculate.haversine(bikeLon, bikeLat, longitude, latitude);
 

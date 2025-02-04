@@ -26,8 +26,8 @@ const database = {
         try {
             await client.connect()
             const db = client.db();
-            const bikes = db.collection("bikes");
-            const users = db.collection("bikeUsers");
+            const bikes = db.collection("electricBikes");
+            const users = db.collection("usersBikes");
             const cities = db.collection("cities");
             const admin = db.collection("admin");
 

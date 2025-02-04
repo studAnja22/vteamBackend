@@ -56,6 +56,53 @@ router.get('/details/:user_id', async (req, res) => {
     }
 });
 
+//User pay off their monthly debt with prepaid
+router.put('/:userEmail/pay/prepaid/', async (req, res) => {
+    try {
+        const {userEmail} = req.params;
+        const updateResult = await user.payDebt(userEmail, "prepaid");
+
+        if (updateResult.error) {
+            return res.status(updateResult.status).json({
+                "status": updateResult.status,
+                "error": updateResult.error
+            });
+        }
+
+        return res.status(200).json({
+            "status": updateResult.status,
+            "message": "User has paid off their debt with prepaid."
+        });
+    } catch (e) {
+        console.error("D:", e);
+        return { status: 500, error: "Sadness" };
+    }
+});
+
+//User pay off their monthly debt by monthly bill
+router.put('/:userEmail/pay/bill/', async (req, res) => {
+    try {
+        const {userEmail} = req.params;
+        const updateResult = await user.payDebt(userEmail, "bill");
+
+        if (updateResult.error) {
+            return res.status(updateResult.status).json({
+                "status": updateResult.status,
+                "error": updateResult.error
+            });
+        }
+
+        return res.status(200).json({
+            "status": updateResult.status,
+            "message": "User has paid off their debt by monthly bill."
+        });
+    } catch (e) {
+        console.error("D:", e);
+        return { status: 500, error: "Sadness" };
+    }
+});
+
+
 //Update user info: name
 router.put('/update/name', async (req, res) => {
     try {

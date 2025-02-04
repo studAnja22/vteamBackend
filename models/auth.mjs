@@ -114,8 +114,7 @@ const auth = {
     },
     emailExists: async function emailExists(body, task) {
         const email = body;
-        console.log("email exists", email);
-        
+
         const db = await dbHelper.connectToDatabase();
         try {
             const filter = { email: email };
@@ -186,7 +185,7 @@ const auth = {
                 });
             }
             // Valid token proceed to next route
-            req.user = { email: decoded.email};
+            req.user = { email: decoded.email };
             return next();
         });
     },

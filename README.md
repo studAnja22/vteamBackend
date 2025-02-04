@@ -34,6 +34,8 @@ Example: `http://localhost:8081/admin/collections/bikes/data`
 Example on localhost: `localhost:1337/user/details`
 - `POST /register`: Register a new user.
 - `GET /details/:user_id`: Get all data on one user by id.
+- `PUT /:userEmail/pay/prepaid/`: Pay your debt in full with prepaid.
+- `PUT /:userEmail/pay/bill/`: Pay your debt in full with monthly bill.
 - `PUT /update/name`: Update the users name.
 - `PUT /update/password`: Update the users password.
 - `PUT /update/prepaid`: Update the users prepaid card (and log it in their transaction log).

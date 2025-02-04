@@ -84,9 +84,10 @@ const user = {
         if (isNaN(amountToAdd) || amountToAdd <= 0) {
             return { status: 400, error: "Invalid amount. Please provide a positive number." };
         }
+        const prepaidBalance = userData.prepaid_balance;
 
         const filter = { email: userEmail };
-        return await userHelper.increase(filter, amountToAdd);
+        return await userHelper.increase(filter, amountToAdd, prepaidBalance);
     },
     updateImage: async function updateImage(userEmail, userImage) {
         if (!userEmail) {
@@ -101,6 +102,34 @@ const user = {
         const updatePassword = { img: userImage };
 
         return await userHelper.update(filter, updatePassword);
+    },
+    payDebt: async function payDebt(userEmail, typeOfPayment) {
+        if (!userEmail) {
+            return { status: 400, error: "Missing users email - can't add money to prepaid card." };
+        }
+
+        const userData = await auth.emailExists(userEmail, "data");
+
+        if (!userData) {
+            return { status: 404, error: "Something went wrong, Unable to find user." };
+        }
+
+        const prepaidBalance = userData.prepaid_balance;
+        const userDebt = userData.monthly_debt;
+
+        //No partial payment accepted.
+        if (userDebt > prepaidBalance) {
+            //Not enough balance to pay off the debt in full.
+            return { status: 400, error: "Not enough funds on prepaid card to pay off the debt." };
+        }
+
+        if (userDebt === 0) {
+            return { status: 400, error: "User is debt free." };
+        }
+
+        const filter = { email: userEmail };
+
+        return await userHelper.payment(filter, typeOfPayment, userDebt, prepaidBalance)
     }
 };
 

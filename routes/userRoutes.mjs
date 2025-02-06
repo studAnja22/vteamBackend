@@ -28,10 +28,10 @@ router.post('/register', async (req, res) => {
     }
 });
 //Get details of a single account
-router.get('/details/:user_id', async (req, res) => {
+router.get('/details/:email', async (req, res) => {
     try {
-        const {user_id} = req.params;
-        const result = await user.getDetails(user_id);
+        const {email} = req.params;
+        const result = await user.getDetails(email);
 
         if (result.error) {
             return res.status(result.status).json({

@@ -23,7 +23,7 @@ const userHelper = {
                 monthly_debt: 0,
                 transaction_log: [],
                 payment_history: [],
-                ride_log: []
+                ride_log: [],
             }
 
             await db.users.insertOne(newUser);
@@ -35,12 +35,12 @@ const userHelper = {
             await db.client.close();
         }
     },
-    getUser: async function getUser(id) {
+    getUser: async function getUser(userEmail) {
         const db = await dbHelper.connectToDatabase();
-        const userId = { _id: ObjectId.createFromHexString(id)};
+        const filter = { email: userEmail };
 
         try {
-            const foundUser = await db.users.findOne(userId);
+            const foundUser = await db.users.findOne(filter);
 
             if (foundUser.matchedCount === 0) {
                 return { status: 404, error: "No user found matching the given filter." };

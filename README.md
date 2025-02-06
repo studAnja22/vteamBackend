@@ -33,7 +33,7 @@ Example: `http://localhost:8081/admin/collections/bikes/data`
 ### /user routes
 Example on localhost: `localhost:1337/user/details`
 - `POST /register`: Register a new user.
-- `GET /details/:user_id`: Get all data on one user by id.
+- `GET /details/:email`: Get all data on one user by email.
 - `PUT /:userEmail/pay/prepaid/`: Pay your debt in full with prepaid.
 - `PUT /:userEmail/pay/bill/`: Pay your debt in full with monthly bill.
 - `PUT /update/name`: Update the users name.

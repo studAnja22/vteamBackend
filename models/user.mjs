@@ -29,16 +29,12 @@ const user = {
 
         return await userHelper.saveUser(body, hashedPassword, currentTimestamp);
     },
-    getDetails: async function getDetails(userId) {
-        if (!userId) {
+    getDetails: async function getDetails(userEmail) {
+        if (!userEmail) {
             return { status: 400, error: "Unable to get users data without their email." };
         }
 
-        if (!ObjectId.isValid(userId)) {
-            return { status: 400, error: `Invalid id format. id must be 24 characters. user id: ${userId}` };
-        }
-
-        return await userHelper.getUser(userId);
+        return await userHelper.getUser(userEmail);
     },
     updateName: async function updateName(userEmail, userName) {
         if (!userEmail) {

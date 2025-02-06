@@ -136,8 +136,7 @@ const rentAndReturn = {
         const db = await dbHelper.connectToDatabase();
         const session = await db.client.startSession();
         session.startTransaction();
-        console.log("Stop??");
-        
+
         try {
             const currentTimestamp = timestamp.getCurrentTime();
 
@@ -161,10 +160,7 @@ const rentAndReturn = {
             const cost = calculate.rideCost(startPosition, currentParkingType, timeDuration);
 
             //Increase user debt.
-            console.log("User helper before");
-            
             const user = await userHelper.getUserById(hexUserId);
-            console.log("User helper after");
 
             //check if it all went well
             if (user.error) {

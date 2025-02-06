@@ -102,7 +102,6 @@ router.put('/:userEmail/pay/bill/', async (req, res) => {
     }
 });
 
-
 //Update user info: name
 router.put('/update/name', async (req, res) => {
     try {

@@ -35,16 +35,13 @@ const userHelper = {
         }
     },
     getUser: async function getUser(userEmail) {
-        console.log("Hello in getUser? ");
-        console.log("Email?", userEmail);
-        
         const db = await dbHelper.connectToDatabase();
         const filter = { email: userEmail };
 
         try {
             const foundUser = await db.users.findOne(filter);
 
-            if (foundUser.matchedCount === 0) {
+            if (!foundUser) {
                 return { status: 404, error: `No user found matching the given filter. email: ${userEmail}` };
             }
 
@@ -57,15 +54,13 @@ const userHelper = {
         }
     },
     getUserById: async function getUserById(id) {
-        console.log("Hello in get user by id");
-        
         const db = await dbHelper.connectToDatabase();
         const filter = { _id: id };
 
         try {
             const foundUser = await db.users.findOne(filter);
 
-            if (foundUser.matchedCount === 0) {
+            if (!foundUser) {
                 return { status: 404, error: "No user found matching the given filter." };
             }
             return foundUser;

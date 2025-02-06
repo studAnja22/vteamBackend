@@ -19,10 +19,15 @@ This is a backend API for handling a school project - a bike rental service.
 - CLIENT_ID: your client id
 - CLIENT_SECRET: your client secret
 - JWT_SECRET: your jwt secret
-4. Run the server with either `nodemon app.mjs` or `node app.mjs`
+4. Run the server with either `nodemon app.mjs`, `nodemon .` or `node app.mjs`
 
 This repo also contains a Dockerfile.
 To run this app with docker please ensure you have installed docker.
+
+## Testing
+To test the code, ensure you have installed `npm i mocha chai supertest`.  
+Add the following sqript in package.json `"test": "NODE_ENV=testing mocha --recursive --exit --timeout 10000"`  
+Run the test with `mocha test`  
 
 1. Build your docker image. `docker build -t name:tag .`
 2. Run the container. `docker run --rm -p 8081:1337 --name server name:tag`
@@ -124,6 +129,4 @@ Currently the price is fixed, but that will be updated shortly.
 The module errorHelper.handleError(); in directory utils/general/errorHelper.mjs is not well tested and might have unaddressed flaws in it's current state.
 
 ## Development
-The backend is currently in development and more features will be added shortly.
-In future updates, the user and admin will be able to login along with other amazing features. Error handling will be improved.
-There will be really cool bikes and cities added too.
+The backend is wrapping up development and is ready for beta testing.

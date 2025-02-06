@@ -13,7 +13,7 @@ import cors from 'cors';
 import admin from './routes/adminRoutes.mjs';
 import user from './routes/userRoutes.mjs';
 import bike from './routes/bikeRoutes.mjs';
-import oauth from './routes/oAuthRoutes.mjs';;
+import oauth from './routes/oAuthRoutes.mjs';
 
 /**------- Express settings -------*/
 const app = express();
@@ -49,3 +49,5 @@ console.log("Hello, your app.mjs is running!");
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
 });
+
+export default app;

@@ -43,7 +43,7 @@ router.get('/details/:email', async (req, res) => {
         if (result.length === 0) {
             return res.status(404).json({
                 "status": 404,
-                "error": `No data found on this user with id: ${user_id}`
+                "error": `No data found on this user with email: ${email}`
             });
         }
 

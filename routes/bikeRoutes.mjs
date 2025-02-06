@@ -148,8 +148,8 @@ router.put('/:bike_id/position/:longitude/:latitude', async (req, res) => {
     try {
         const { bike_id, longitude, latitude } = req.params;
         const position = {
-            latitude: latitude,
-            longitude: longitude
+            latitude: parseFloat(latitude),
+            longitude: parseFloat(longitude)
         }
         const updateResult = await bike.updatePosition(bike_id, position);
 

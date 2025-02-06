@@ -5,7 +5,8 @@ import userHelper from '../utils/api/user/userHelper.mjs';
 import bcryptHelper from '../utils/authentication/bcryptHelper.mjs';
 import timestamp from '../utils/general/timestamp.mjs';
 import bikeHelper from '../utils/api/bike/bikeHelper.mjs';
-
+import { ObjectId } from 'mongodb';
+userHelper.getUser
 const admin = {
     getAllFromCollection: async function getAllFromCollection(collectionName) {
         const db = await dbHelper.connectToDatabase();
@@ -64,7 +65,7 @@ const admin = {
         try {
             switch (target) {
                 case "user":
-                    const userExist = await userHelper.getUser(id);
+                    const userExist = await userHelper.getUserById(ObjectId.createFromHexString(id));
 
                     if (userExist.error) {
                         return userExist;

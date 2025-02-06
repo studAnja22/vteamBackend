@@ -28,7 +28,7 @@ const bike = {
         }
 
         /**Checking if the user exists and if the user isn't already renting a bike */
-        const user = await userHelper.getUser(userId);
+        const user = await userHelper.getUserById(ObjectId.createFromHexString(userId));
 
         if (!user) {
             return { status: 400, error: `Could not find user with that id: ${userId}`};
@@ -62,7 +62,7 @@ const bike = {
         }
 
         /** Does user exist and are they renting a the bike? */
-        const user = await userHelper.getUser(userId);
+        const user = await userHelper.getUserById(ObjectId.createFromHexString(userId));
 
         if (!user) {
             //User does not exists

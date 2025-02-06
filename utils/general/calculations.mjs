@@ -30,7 +30,7 @@ const calculate = {
          * The rate is currently 2,5 kr/min, which is 2,5/60000 = 0.00004167 kr/ms
          */
         const rate = 0.00004167;
-        const startFee = 30;
+        const startFee = 30;//konvertera till ms och returnera sedan konverterat till totala priset i kr.
 
         let cost = startFee + (rate * time);
 

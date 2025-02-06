@@ -1,6 +1,5 @@
 import dbHelper from "../../database/dbHelper.mjs";
 import timestamp from "../../general/timestamp.mjs";
-import { ObjectId } from "mongodb";
 
 const userHelper = {
     saveUser: async function saveUser(body, hashedPassword, timestamp) {
@@ -36,8 +35,32 @@ const userHelper = {
         }
     },
     getUser: async function getUser(userEmail) {
+        console.log("Hello in getUser? ");
+        console.log("Email?", userEmail);
+        
         const db = await dbHelper.connectToDatabase();
         const filter = { email: userEmail };
+
+        try {
+            const foundUser = await db.users.findOne(filter);
+
+            if (foundUser.matchedCount === 0) {
+                return { status: 404, error: `No user found matching the given filter. email: ${userEmail}` };
+            }
+
+            return foundUser;
+        } catch (e) {
+            console.error("Error during getUser operation:", e);
+            return { status: 500, error: "Failed to retrieve user document with id"};
+        } finally {
+            await db.client.close();
+        }
+    },
+    getUserById: async function getUserById(id) {
+        console.log("Hello in get user by id");
+        
+        const db = await dbHelper.connectToDatabase();
+        const filter = { _id: id };
 
         try {
             const foundUser = await db.users.findOne(filter);

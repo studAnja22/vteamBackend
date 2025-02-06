@@ -3,7 +3,6 @@ import timestamp from '../utils/general/timestamp.mjs';
 import userHelper from '../utils/api/user/userHelper.mjs';
 import validationHelper from '../utils/api/validationHelper.mjs';
 import auth from './auth.mjs';
-import { ObjectId } from 'mongodb';
 
 const user = {
     register: async function register(body) {

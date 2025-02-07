@@ -269,7 +269,7 @@ describe("POST oAuth", () => {
             .catch((err) => done(err));
         });
 
-    after(function (done) {
-    process.exit(0);
-    });
+    // after(function (done) {
+    // process.exit(0);
+    // });
 });

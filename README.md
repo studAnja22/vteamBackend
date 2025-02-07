@@ -10,7 +10,8 @@ This is a backend API for handling a school project - a bike rental service.
 ## Setup instructions
 1. clone the repository
 2. npm install
-3. install and create a dotenv file (`.env`) file (npm install dotenv --save) with these variables:
+3. npm install socket.io
+4. install and create a dotenv file (`.env`) file (npm install dotenv --save) with these variables:
 - PORT: the port number to run the server. Example: 1337
 - DB_MONGO: your MongoDB username - for authenticating the database cluster
 - DB_PASS: your MongoDB password - paired with the username for authentication
@@ -19,7 +20,7 @@ This is a backend API for handling a school project - a bike rental service.
 - CLIENT_ID: your client id
 - CLIENT_SECRET: your client secret
 - JWT_SECRET: your jwt secret
-4. Run the server with either `nodemon app.mjs`, `nodemon .` or `node app.mjs`
+5. Run the server with either `nodemon app.mjs`, `nodemon .` or `node app.mjs`
 
 This repo also contains a Dockerfile.
 To run this app with docker please ensure you have installed docker.

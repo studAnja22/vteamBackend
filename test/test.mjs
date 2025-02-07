@@ -3,7 +3,7 @@ import request from "supertest";
 import { expect } from "chai";
 
 /**---- import ----*/
-import app from "../app.mjs";
+import server from "../app.mjs";
 
 let testUser = {
     email: `FancyUser2${Date.now()}@test.se`,
@@ -30,7 +30,7 @@ describe("POST users", () => {
     });
 
     it("Shouldn't register user if form is incomplete", (done) => {
-        request(app)
+        request(server)
             .post("/user/register")
             .send(incompleteForm)
             .expect(400)
@@ -42,7 +42,7 @@ describe("POST users", () => {
         });
 
     it("Shouldn't register new user with short password.", (done) => {
-        request(app)
+        request(server)
             .post("/user/register")
             .send(userWithShortPassword)
             .expect(400)
@@ -54,7 +54,7 @@ describe("POST users", () => {
         });
 
     it("Should register new user with uniq email.", (done) => {
-        request(app)
+        request(server)
             .post("/user/register")
             .send(testUser)
             .expect(200)
@@ -66,7 +66,7 @@ describe("POST users", () => {
         });
 
     it("Shouldn't register user if username is taken.", (done) => {
-    request(app)
+    request(server)
         .post("/user/register")
         .send(testUser)
         .expect(409)
@@ -85,7 +85,7 @@ describe("GET users", () => {
     });
 
     it("Shouldn't get user data with wrong username", (done) => {
-        request(app)
+        request(server)
             .get("/user/details/Ops")
             .expect(404)
             .then((res) => {
@@ -96,7 +96,7 @@ describe("GET users", () => {
         });
 
     it("Should get user details.", (done) => {
-        request(app)
+        request(server)
             .get(`/user/details/${testUser.email}`)
             .expect(200)
             .then((res) => {
@@ -115,7 +115,7 @@ describe("PUT users", () => {
     });
 
     it("Should add funds to prepaid card.", (done) => {
-        request(app)
+        request(server)
             .put("/user/update/prepaid")
             .send({
                 email: testUser.email,
@@ -137,7 +137,7 @@ describe("POST oAuth", () => {
     });
 
     it("Should login user", (done) => {
-        request(app)
+        request(server)
             .post("/oauth/login")
             .send(testUser)
             .expect(201)
@@ -156,7 +156,7 @@ describe("POST admin", () => {
     });
 
     it("Should create a bike", (done) => {
-        request(app)
+        request(server)
             .post("/admin/createBike")
             .send({
                 city: "Stockholm"
@@ -177,7 +177,7 @@ describe("PUT bikes", () => {
     });
 
     it("Shouldn't start a ride with invalid id", (done) => {
-        request(app)
+        request(server)
             .put(`/bike/start/${userId}/${testBikeId}1`)
             .expect(400)
             .then((res) => {
@@ -188,7 +188,7 @@ describe("PUT bikes", () => {
         });
 
     it("Should start a ride for user", (done) => {
-        request(app)
+        request(server)
             .put(`/bike/start/${userId}/${testBikeId}`)
             .expect(200)
             .then((res) => {
@@ -199,7 +199,7 @@ describe("PUT bikes", () => {
         });
 
     it("Shouldn't start a ride for user who is already renting a bike", (done) => {
-        request(app)
+        request(server)
             .put(`/bike/start/${userId}/${testBikeId}`)
             .expect(409)
             .then((res) => {
@@ -210,7 +210,7 @@ describe("PUT bikes", () => {
         });
 
     it("Should stop a ride for user", (done) => {
-        request(app)
+        request(server)
             .put(`/bike/stop/${userId}/${testBikeId}`)
             .expect(200)
             .then((res) => {
@@ -228,7 +228,7 @@ describe("PUT users", () => {
     });
 
     it("Should pay for ride with prepaid", (done) => {
-        request(app)
+        request(server)
             .put(`/user/${testUser.email}/pay/prepaid/`)
             .expect(200)
             .then((res) => {
@@ -246,7 +246,7 @@ describe("POST oAuth", () => {
     });
 
     it("Should logout user", (done) => {
-        request(app)
+        request(server)
             .post("/oauth/logout")
             .send(testUser)
             .expect(201)
@@ -258,7 +258,7 @@ describe("POST oAuth", () => {
         });
 
     it("Shouldn't logout user when user is already logged out.", (done) => {
-        request(app)
+        request(server)
             .post("/oauth/logout")
             .send(testUser)
             .expect(400)

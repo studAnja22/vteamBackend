@@ -14,6 +14,11 @@ import admin from './routes/adminRoutes.mjs';
 import user from './routes/userRoutes.mjs';
 import bike from './routes/bikeRoutes.mjs';
 import oauth from './routes/oAuthRoutes.mjs';
+import simulation from './routes/simulationRoutes.mjs';
+
+/**---- Socket imports */
+import initSocket from './socket/socket.mjs';
+import { createServer } from 'node:http';
 
 /**------- Express settings -------*/
 const app = express();
@@ -42,12 +47,19 @@ app.use("/admin", admin);
 app.use("/user", user);
 app.use("/bike", bike);
 app.use("/oauth", oauth);
+app.use("/simulation", simulation);
+
+
+/**----- Initialize Socket.io ----- */
+const httpServer = createServer(app);
+
+initSocket(httpServer);
 
 // app.mjs
 console.log("Hello, your app.mjs is running!");
 
-app.listen(port, () => {
+const server = httpServer.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
 });
 
-export default app;
+export default server;

@@ -10,4 +10,6 @@ RUN npm install -g nodemon
 
 COPY . ./
 
+EXPOSE 1337
+
 CMD [ "node", "app.mjs" ]

@@ -86,23 +86,56 @@ router.put('/stopAllRides', async (req, res) => {
     }
 })
 
-// Moves all bikes back to main stations
 router.put('/resetAll', async (req, res) => {
-    const bikes = await admin.getAllFromCollection("bikes");
-    let bulkOps = [];
+    try {
+        const bikes = await admin.getAllFromCollection("bikes");
+        let bulkOps = [];
 
-    for (const item of bikes) {
-        let randNr = Math.floor(Math.random() * 3);
-        const position = {
-            latitude: cityLocations[item.city][randNr].latitude,
-            longitude: cityLocations[item.city][randNr].longitude
+        // Track the next station index for each city
+        const cityCounters = {};
+
+        for (const bike of bikes) {
+            const stations = cityLocations[bike.city];
+            const totalStations = stations.length;
+
+            // Initialize the counter for the city if not already set
+            if (!cityCounters[bike.city]) {
+                cityCounters[bike.city] = 0;
+            }
+
+            // Assign bike to the next station in a round-robin fashion
+            const stationIndex = cityCounters[bike.city] % totalStations;
+            const position = {
+                latitude: stations[stationIndex].latitude,
+                longitude: stations[stationIndex].longitude
+            };
+
+            // Prepare bulk update operation
+            bulkOps.push({
+                updateOne: {
+                    filter: { _id: bike._id },
+                    update: {
+                        $set: {
+                            current_location: {
+                                longitude: position.longitude,
+                                latitude: position.latitude
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Move to the next station for the next bike
+            cityCounters[bike.city]++;
         }
-        bulkOps.push({ updateOne: { filter: { _id: item._id }, update: { $set: { current_location: { longitude: position.longitude, latitude: position.latitude } } } } })
-    }
 
-    db.bikes.bulkWrite(bulkOps)
-        .then(result => console.log(result))
-        .catch(err => console.error(err));
-})
+        await db.bikes.bulkWrite(bulkOps);
+
+        res.status(200).json({ message: "All bikes have been reset to main stations evenly." });
+    } catch (error) {
+        console.error("Error resetting bikes:", error);
+        res.status(500).json({ error: "Failed to reset bikes." });
+    }
+});
 
 export default router;

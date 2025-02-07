@@ -30,24 +30,24 @@ const cityLocations = {
 router.post('/addjson', async (req, res) => {
     let data = req.body.data;
 
-    fs.appendFile('routes_sthlm3.txt', `${JSON.stringify(data)}\n`, (err) => {
+    fs.appendFile('route-files/routes_sthlm3.txt', `${JSON.stringify(data)}\n`, (err) => {
         if (err) throw err;
     });
 });
 
 // Returns all routes from files as a json object
 router.get('/allRoutes', async (req, res) => {
-    let gbg1 = fs.readFileSync('routes_gbg1.txt', 'utf-8').split("\n");
-    let gbg2 = fs.readFileSync('routes_gbg2.txt', 'utf-8').split("\n");
-    let gbg3 = fs.readFileSync('routes_gbg3.txt', 'utf-8').split("\n");
+    let gbg1 = fs.readFileSync('route-files/routes_gbg1.txt', 'utf-8').split("\n");
+    let gbg2 = fs.readFileSync('route-files/routes_gbg2.txt', 'utf-8').split("\n");
+    let gbg3 = fs.readFileSync('route-files/routes_gbg3.txt', 'utf-8').split("\n");
 
-    let sthlm1 = fs.readFileSync('routes_sthlm1.txt', 'utf-8').split("\n");
-    let sthlm2 = fs.readFileSync('routes_sthlm2.txt', 'utf-8').split("\n");
-    let sthlm3 = fs.readFileSync('routes_sthlm3.txt', 'utf-8').split("\n");
+    let sthlm1 = fs.readFileSync('route-files/routes_sthlm1.txt', 'utf-8').split("\n");
+    let sthlm2 = fs.readFileSync('route-files/routes_sthlm2.txt', 'utf-8').split("\n");
+    let sthlm3 = fs.readFileSync('route-files/routes_sthlm3.txt', 'utf-8').split("\n");
 
-    let kk1 = fs.readFileSync('routes_kk1.txt', 'utf-8').split("\n");
-    let kk2 = fs.readFileSync('routes_kk2.txt', 'utf-8').split("\n");
-    let kk3 = fs.readFileSync('routes_kk3.txt', 'utf-8').split("\n");
+    let kk1 = fs.readFileSync('route-files/routes_kk1.txt', 'utf-8').split("\n");
+    let kk2 = fs.readFileSync('route-files/routes_kk2.txt', 'utf-8').split("\n");
+    let kk3 = fs.readFileSync('route-files/routes_kk3.txt', 'utf-8').split("\n");
 
     let allRoutes = [gbg1, gbg2, gbg3, sthlm1, sthlm2, sthlm3, kk1, kk2, kk3];
 
